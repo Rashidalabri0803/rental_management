@@ -18,7 +18,7 @@ class Unit(models.Model):
       verbose_name="نوع الوحدة"
     )
     floor_number = models.PositiveIntegerField(
-      verbose_name='رقم الطابق'
+      verbose_name="رقم الطابق"
     )
     size = models.FloatField(
       verbose_name="المساحة بالمتر المربع"
