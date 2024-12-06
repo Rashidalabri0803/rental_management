@@ -1,0 +1,8 @@
+modules = ["python-3.11", "web", "php-8.2"]
+run = "python runserver 0.0.0.0:8000"
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "python runserver 0.0.0.0:8000"]
