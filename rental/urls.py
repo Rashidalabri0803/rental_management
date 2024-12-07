@@ -2,7 +2,7 @@ from django.urls import path
 from .views import UnitListView, UnitCreateView, UnitUpdateView, UnitDeleteView, UnitDetailView, LeaseListView, LeaseCreateView, LeaseUpdateView, LeaseDeleteView, PaymentListView, PaymentCreateView, MaintenanceRequestListView, MaintenanceRequestCreateView, MaintenanceRequestUpdateView
 
 urlpatterns = [
-    path('units/', UnitListView.as_view(), name='unit_list'),
+    path('units/', UnitListView.as_view(), name='tenant_list'),
     path('units/<int:pk>/', UnitDetailView.as_view(), name='unit_detail'),
     path('units/add/', UnitCreateView.as_view(), name='add_unit'),
     path('units/<int:pk>/edit/', UnitUpdateView.as_view(), name='edit_unit'),
