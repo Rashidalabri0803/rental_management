@@ -1,4 +1,4 @@
-modules = ["python-3.11", "web", "php-8.2"]
+modules = ["python-3.12", "web"]
 run = "python runserver 0.0.0.0:8000"
 
 [nix]
