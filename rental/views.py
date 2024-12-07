@@ -1,150 +1,161 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib import messages
 from .models import Unit, Tenant, Lease, Payment, MaintenanceRequest
 from .forms import UnitForm, TenantForm, LeaseForm, PaymentForm, MaintenanceRequestForm
 
-def unit_list(request):
-    units = Unit.objects.all()
-    return render(request, 'rental/units/unit_list.html', {'units': units})
+class UnitListView(ListView):
+    model = Unit
+    template_name = "rental/units/unit_list.html"
+    context_object_name = "units"
+    ordering = ['unit_number']
+    paginate_by = 10
 
-def unit_detail(request, pk):
-    unit = get_object_or_404(Unit, pk=pk)
-    return render(request, 'rental/units/unit_detail.html', {'unit': unit})
+class UnitDetailView(DetailView):
+    model = Unit
+    template_name = "rental/units/unit_detail.html"
+    context_object_name = "unit"
 
-def add_unit(request):
-    if request.method == 'POST':
-        form = UnitForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('unit_list')
-    else:
-        form = UnitForm()
-    return render(request, 'rental/units/unit_form.html', {'form': form})
+class UnitCreateView(CreateView):
+    model = Unit
+    form_class = UnitForm
+    template_name = "rental/units/unit_form.html"
+    success_url = reverse_lazy("unit_list")
 
-def edit_unit(request, pk):
-    unit = get_object_or_404(Unit, pk=pk)
-    if request.method == 'POST':
-        form = UnitForm(request.POST, instance=unit)
-        if form.is_valid():
-            form.save()
-            return redirect('unit_list')
-    else:
-        form = UnitForm(instance=unit)
-    return render(request, 'rental/units/unit_form.html', {'form': form})
+    def form_valid(self, form):
+        messages.success(self.request, "تمت إضافة الوحدة بنجاح.")
+        return super().form_valid(form)
 
-def delete_unit(request, pk):
-    unit = get_object_or_404(Unit, pk=pk)
-    if request.method == 'POST':
-        unit.delete()
-        return redirect('unit_list')
-    return render(request, 'rental/units/unit_confirm_delete.html', {'unit': unit})
+class UnitUpdateView(UpdateView):
+    model = Unit
+    form_class = UnitForm
+    template_name = "rental/units/unit_form.html"
+    success_url = reverse_lazy("unit_list")
 
-def tenant_list(request):
-    tenants = Tenant.objects.all()
-    return render(request, 'rental/tenants/tenant_list.html', {'tenants': tenants})
+    def form_valid(self, form):
+        messages.success(self.request, "تم تعديل الوحدة بنجاح.")
+        return super().form_valid(form)
 
-def tenant_detail(request, pk):
-    tenant = get_object_or_404(Tenant, pk=pk)
-    return render(request, 'rental/tenants/tenant_detail.html', {'tenant': tenant})
+class UnitDeleteView(DeleteView):
+    model = Unit
+    template_name = "rental/units/unit_confirm_delete.html"
+    success_url = reverse_lazy("unit_list")
 
-def add_tenant(request):
-    if request.method == 'POST':
-        form = TenantForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('tenant_list')
-    else:
-        form = TenantForm()
-    return render(request, 'rental/tenants/tenant_form.html', {'form': form})
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "تم حذف الوحدة بنجاح.")
+        return super().delete(request, *args, **kwargs)
 
-def edit_tenant(request, pk):
-    tenant = get_object_or_404(Tenant, pk=pk)
-    if request.method == 'POST':
-        form = TenantForm(request.POST, instance=tenant)
-        if form.is_valid():
-            form.save()
-            return redirect('tenant_list')
-    else:
-        form = TenantForm(instance=tenant)
-    return render(request, 'rental/tenants/tenant_form.html', {'form': form})
+class TenantListView(ListView):
+    model = Tenant
+    template_name = "rental/tenants/tenant_list.html"
+    context_object_name = "tenants"
+    ordering = ['name']
+    paginate_by = 10
 
-def delete_tenant(request, pk):
-    tenant = get_object_or_404(Tenant, pk=pk)
-    if request.method == 'POST':
-        tenant.delete()
-        return redirect('tenant_list')
-    return render(request, 'rental/tenants/tenant_confirm_delete.html', {'tenant': tenant})
+class TenantCreateView(CreateView):
+    model = Tenant
+    form_class = TenantForm
+    template_name = "rental/tenants/tenant_form.html"
+    success_url = reverse_lazy("tenant_list")
 
-def lease_list(request):
-    leases = Lease.objects.all()
-    return render(request, 'rental/leases/lease_list.html', {'leases': leases})
+    def form_valid(self, form):
+        messages.success(self.request, "تمت إضافة المستأجر بنجاح.")
+        return super().form_valid(form)
 
-def lease_detail(request, pk):
-    lease = get_object_or_404(Lease, pk=pk)
-    return render(request, 'rental/leases/lease_detail.html', {'lease': lease})
+class TenantUpdateView(UpdateView):
+    model = Tenant
+    form_class = TenantForm
+    template_name = "rental/tenants/tenant_form.html"
+    success_url = reverse_lazy("tenant_list")
 
-def add_lease(request):
-    if request.method == 'POST':
-        form = LeaseForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('lease_list')
-    else:
-        form = LeaseForm()
-    return render(request, 'rental/leases/lease_form.html', {'form': form})
+    def form_valid(self, form):
+        messages.success(self.request, "تم تعديل بيانات المستأجر بنجاح.")
+        return super().form_valid(form)
 
-def edit_lease(request, pk):
-    lease = get_object_or_404(Lease, pk=pk)
-    if request.method == 'POST':
-        form = LeaseForm(request.POST, instance=lease)
-        if form.is_valid():
-            form.save()
-            return redirect('lease_list')
-    else:
-        form = LeaseForm(instance=lease)
-    return render(request, 'rental/leases/lease_form.html', {'form': form})
+class TenantDeleteView(DeleteView):
+    model = Tenant
+    template_name = "rental/tenants/tenant_confirm_delete.html"
+    success_url = reverse_lazy("tenant_list")
 
-def delete_lease(request, pk):
-    lease = get_object_or_404(Lease, pk=pk)
-    if request.method == 'POST':
-        lease.delete()
-        return redirect('lease_list')
-    return render(request, 'rental/leases/lease_confirm_delete.html', {'lease': lease})
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "تم حذف المستأجر بنجاح.")
+        return super().delete(request, *args, **kwargs)
 
-def payment_list(request):
-    payments = Payment.objects.all()
-    return render(request, 'rental/payments/payment_list.html', {'payments': payments})
+class LeaseListView(ListView):
+    model = Lease
+    template_name = "rental/leases/lease_list.html"
+    context_object_name = "leases"
+    ordering = ['-start_date']
+    paginate_by = 10
 
-def add_payment(request):
-    if request.method == 'POST':
-        form = PaymentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('payment_list')
-    else:
-        form = PaymentForm()
-    return render(request, 'rental/payments/payment_form.html', {'form': form})
+class LeaseCreateView(CreateView):
+    model = Lease
+    form_class = LeaseForm
+    template_name = "rental/leases/lease_form.html"
+    success_url = reverse_lazy("lease_list")
 
-def maintenance_request_list(request):
-    maintenance_requests = MaintenanceRequest.objects.all()
-    return render(request, 'rental/maintenance_requests/maintenance_request_list.html', {'maintenance_requests': maintenance_requests})
+    def form_valid(self, form):
+        messages.success(self.request, "تم إنشاء عقد الإيجار بنجاح.")
+        return super().form_valid(form)
 
-def add_maintenance_request(request):
-    if request.method == 'POST':
-        form = MaintenanceRequestForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('maintenance_request_list')
-    else:
-        form = MaintenanceRequestForm()
-    return render(request, 'rental/maintenance_requests/maintenance_request_form.html', {'form': form})
+class LeaseUpdateView(UpdateView):
+    model = Lease
+    form_class = LeaseForm
+    template_name = "rental/leases/lease_form.html"
+    success_url = reverse_lazy("lease_list")
 
-def edit_maintenance_request(request, pk):
-    maintenance_request = get_object_or_404(MaintenanceRequest, pk=pk)
-    if request.method == 'POST':
-        form = MaintenanceRequestForm(request.POST, instance=maintenance_request)
-        if form.is_valid():
-            form.save()
-            return redirect('maintenance_request_list')
-    else:
-        form = MaintenanceRequestForm(instance=maintenance_request)
-    return render(request, 'rental/maintenance_requests/maintenance_request_form.html', {'form': form})
+    def form_valid(self, form):
+        messages.success(self.request, "تم تعديل عقد الإيجار بنجاح.")
+        return super().form_valid(form)
+
+class LeaseDeleteView(DeleteView):
+    model = Lease
+    template_name = "rental/leases/lease_confirm_delete.html"
+    success_url = reverse_lazy("lease_list")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "تم حذف عقد الإيجار بنجاح.")
+        return super().delete(request, *args, **kwargs)
+
+class PaymentListView(ListView):
+    model = Payment
+    template_name = "rental/payments/payment_list.html"
+    ordering = ['-date']
+    paginate_by = 10
+
+class PaymentCreateView(CreateView):
+    model = Payment
+    form_class = PaymentForm
+    template_name = "rental/payments/payment_form.html"
+    success_url = reverse_lazy("payment_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم إضافة دفعة بنجاح.")
+        return super().form_valid(form)
+
+class MaintenanceRequestListView(ListView):
+    model = MaintenanceRequest
+    template_name = "rental/maintenance_requests/maintenance_request_list.html"
+    ordering = ['-request_date']
+    paginate_by = 10
+
+class MaintenanceRequestCreateView(CreateView):
+    model = MaintenanceRequest
+    form_class = MaintenanceRequestForm
+    template_name = "rental/maintenance_requests/maintenance_request_form.html"
+    success_url = reverse_lazy("maintenance_request_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم إنشاء طلب الصيانة بنجاح.")
+        return super().form_valid(form)
+
+class MaintenanceRequestUpdateView(UpdateView):
+    model = MaintenanceRequest
+    form_class = MaintenanceRequestForm
+    template_name = "rental/maintenance_requests/maintenance_request_form.html"
+    success_url = reverse_lazy("maintenance_request_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم تعديل طلب الصيانة بنجاح.")
+        return super().form_valid(form)
