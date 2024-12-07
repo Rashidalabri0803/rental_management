@@ -1,0 +1,35 @@
+{% extends 'rental/base.html' %}
+
+{% block title %} الوحدات {% endblock %}
+
+{% block content %}
+<h1>الوحدات</h1>
+
+<a href="{% url 'rental:unit-create' %}" class="btn btn-primary">إضافة وحدة جديدة</a>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>رقم الوحدة</th>
+      <th>النوع</th>
+      <th>الحالة</th>
+      <th>الإجراءات</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for unit in units %}
+    <tr>
+      <td>{{ unit.unit_number }}</td>
+      <td>{{ unit.unit_type }}</td>
+      <td>{{ unit.status }}</td>
+      <td>
+        <a href="{% url 'rental:unit_detail' unit.pk %}" class="btn btn-info btn-sm">عرض</a>
+        <a href="{% url 'rental:unit_update' unit.pk %}" class="btn btn-warning btn-sm">تعديل</a>
+        <a href="{% url 'rental:unit_delete' unit.pk %}" class="btn btn-danger btn-sm">حذف</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
