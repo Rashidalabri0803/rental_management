@@ -128,6 +128,16 @@ def maintenance_request_list(request):
     maintenance_requests = MaintenanceRequest.objects.all()
     return render(request, 'rental/maintenance_requests/maintenance_request_list.html', {'maintenance_requests': maintenance_requests})
 
+def add_maintenance_request(request):
+    if request.method == 'POST':
+        form = MaintenanceRequestForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('maintenance_request_list')
+    else:
+        form = MaintenanceRequestForm()
+    return render(request, 'rental/maintenance_requests/maintenance_request_form.html', {'form': form})
+
 def edit_maintenance_request(request, pk):
     maintenance_request = get_object_or_404(MaintenanceRequest, pk=pk)
     if request.method == 'POST':
