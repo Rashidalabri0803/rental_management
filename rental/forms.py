@@ -4,7 +4,7 @@ from .models import Unit, Tenant, Lease, Payment, MaintenanceRequest
 class UnitForm(forms.ModelForm):
     class Meta:
         model = Unit
-        fields = ['unit_number', 'unit_type', 'floor_number', 'size', 'rent_price' , 'is_available', 'description']
+        fields = ['unit_number', 'unit_type', 'floor_number', 'size', 'rent_price' , 'description']
         widgets = {
             'unit_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الوحدة'}),
             'unit_type': forms.Select(attrs={'class': 'form-control'}),
