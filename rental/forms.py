@@ -88,7 +88,7 @@ class PaymentForm(forms.ModelForm):
 class MaintenanceRequestForm(forms.ModelForm):
     class Meta:
         model = MaintenanceRequest
-        fields = ['unit', 'description', 'request_date', 'completion_date', 'is_completed']
+        fields = ['unit', 'description', 'completion_date', 'is_completed']
         widgets = {
             'unit': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'وصف المشكلة', 'rows': 3}),
@@ -98,7 +98,6 @@ class MaintenanceRequestForm(forms.ModelForm):
         labels = {
             'unit': 'الوحدة',
             'description': 'وصف المشكلة',
-            'request_date': 'تاريخ الطلب',
             'completion_date': 'تاريخ الإنجاز',
             'is_completed': 'تم الإنجاز',
         }

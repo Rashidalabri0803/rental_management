@@ -5,7 +5,7 @@ from .forms import UnitForm, TenantForm, LeaseForm, PaymentForm, MaintenanceRequ
 def unit_list(request):
     units = Unit.objects.all()
     context = {'units': units}
-    return render(request, 'units/unit_list.html', context)
+    return render(request, 'rental/units/unit_list.html', context)
 
 def unit_detail(request, pk):
     unit = Unit.objects.get(pk=pk)
