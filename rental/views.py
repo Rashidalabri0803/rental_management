@@ -4,15 +4,13 @@ from .forms import UnitForm, TenantForm, LeaseForm, PaymentForm, MaintenanceRequ
 
 def unit_list(request):
     units = Unit.objects.all()
-    context = {'units': units}
-    return render(request, 'rental/units/unit_list.html', context)
+    return render(request, 'rental/units/unit_list.html', {'units': units})
 
 def unit_detail(request, pk):
-    unit = Unit.objects.get(pk=pk)
-    context = {'unit': unit}
-    return render(request, 'units/unit_detail.html', context)
+    unit = get_object_or_404(Unit, pk=pk)
+    return render(request, 'rental/units/unit_detail.html', {'unit': unit})
 
-def unit_create(request):
+def add_unit(request):
     if request.method == 'POST':
         form = UnitForm(request.POST)
         if form.is_valid():
@@ -20,11 +18,10 @@ def unit_create(request):
             return redirect('unit_list')
     else:
         form = UnitForm()
-    context = {'form': form}
-    return render(request, 'units/unit_form.html', context)
+    return render(request, 'rental/units/unit_form.html', {'form': form})
 
-def unit_update(request, pk):
-    unit = Unit.objects.get(pk=pk)
+def edit_unit(request, pk):
+    unit = get_object_or_404(Unit, pk=pk)
     if request.method == 'POST':
         form = UnitForm(request.POST, instance=unit)
         if form.is_valid():
@@ -32,23 +29,24 @@ def unit_update(request, pk):
             return redirect('unit_list')
     else:
         form = UnitForm(instance=unit)
-    context = {'form': form}
-    return render(request, 'units/unit_form.html', context)
+    return render(request, 'rental/units/unit_form.html', {'form': form})
 
-def unit_delete(request, pk):
-    unit = Unit.objects.get(pk=pk)
+def delete_unit(request, pk):
+    unit = get_object_or_404(Unit, pk=pk)
     if request.method == 'POST':
         unit.delete()
         return redirect('unit_list')
-    context = {'unit': unit}
-    return render(request, 'units/unit_confirm_delete.html', context)
+    return render(request, 'rental/units/unit_confirm_delete.html', {'unit': unit})
 
 def tenant_list(request):
     tenants = Tenant.objects.all()
-    context = {'tenants': tenants}
-    return render(request, 'tenants/tenant_list.html', context)
+    return render(request, 'rental/tenants/tenant_list.html', {'tenants': tenants})
 
-def tenant_create(request):
+def tenant_detail(request, pk):
+    tenant = get_object_or_404(Tenant, pk=pk)
+    return render(request, 'rental/tenants/tenant_detail.html', {'tenant': tenant})
+
+def add_tenant(request):
     if request.method == 'POST':
         form = TenantForm(request.POST)
         if form.is_valid():
@@ -56,11 +54,10 @@ def tenant_create(request):
             return redirect('tenant_list')
     else:
         form = TenantForm()
-    context = {'form': form}
-    return render(request, 'tenants/tenant_form.html', context)
+    return render(request, 'rental/tenants/tenant_form.html', {'form': form})
 
-def tenant_update(request, pk):
-    tenant = Tenant.objects.get(pk=pk)
+def edit_tenant(request, pk):
+    tenant = get_object_or_404(Tenant, pk=pk)
     if request.method == 'POST':
         form = TenantForm(request.POST, instance=tenant)
         if form.is_valid():
@@ -68,23 +65,24 @@ def tenant_update(request, pk):
             return redirect('tenant_list')
     else:
         form = TenantForm(instance=tenant)
-    context = {'form': form}
-    return render(request, 'tenants/tenant_form.html', context)
+    return render(request, 'rental/tenants/tenant_form.html', {'form': form})
 
-def tenant_delete(request, pk):
-    tenant = Tenant.objects.get(pk=pk)
+def delete_tenant(request, pk):
+    tenant = get_object_or_404(Tenant, pk=pk)
     if request.method == 'POST':
         tenant.delete()
         return redirect('tenant_list')
-    context = {'tenant': tenant}
-    return render(request, 'tenants/tenant_confirm_delete.html', context)
+    return render(request, 'rental/tenants/tenant_confirm_delete.html', {'tenant': tenant})
 
 def lease_list(request):
     leases = Lease.objects.all()
-    context = {'leases': leases}
-    return render(request, 'leases/lease_list.html', context)
+    return render(request, 'rental/leases/lease_list.html', {'leases': leases})
 
-def lease_create(request):
+def lease_detail(request, pk):
+    lease = get_object_or_404(Lease, pk=pk)
+    return render(request, 'rental/leases/lease_detail.html', {'lease': lease})
+
+def add_lease(request):
     if request.method == 'POST':
         form = LeaseForm(request.POST)
         if form.is_valid():
@@ -92,11 +90,10 @@ def lease_create(request):
             return redirect('lease_list')
     else:
         form = LeaseForm()
-    context = {'form': form}
-    return render(request, 'leases/lease_form.html', context)
+    return render(request, 'rental/leases/lease_form.html', {'form': form})
 
-def lease_update(request, pk):
-    lease = Lease.objects.get(pk=pk)
+def edit_lease(request, pk):
+    lease = get_object_or_404(Lease, pk=pk)
     if request.method == 'POST':
         form = LeaseForm(request.POST, instance=lease)
         if form.is_valid():
@@ -104,23 +101,20 @@ def lease_update(request, pk):
             return redirect('lease_list')
     else:
         form = LeaseForm(instance=lease)
-    context = {'form': form}
-    return render(request, 'leases/lease_form.html', context)
+    return render(request, 'rental/leases/lease_form.html', {'form': form})
 
-def lease_delete(request, pk):
-    lease = Lease.objects.get(pk=pk)
+def delete_lease(request, pk):
+    lease = get_object_or_404(Lease, pk=pk)
     if request.method == 'POST':
         lease.delete()
         return redirect('lease_list')
-    context = {'lease': lease}
-    return render(request, 'leases/lease_confirm_delete.html', context)
+    return render(request, 'rental/leases/lease_confirm_delete.html', {'lease': lease})
 
 def payment_list(request):
     payments = Payment.objects.all()
-    context = {'payments': payments}
-    return render(request, 'payments/payment_list.html', context)
+    return render(request, 'rental/payments/payment_list.html', {'payments': payments})
 
-def payment_create(request):
+def add_payment(request):
     if request.method == 'POST':
         form = PaymentForm(request.POST)
         if form.is_valid():
@@ -128,27 +122,14 @@ def payment_create(request):
             return redirect('payment_list')
     else:
         form = PaymentForm()
-    context = {'form': form}
-    return render(request, 'payments/payment_form.html', context)
+    return render(request, 'rental/payments/payment_form.html', {'form': form})
 
 def maintenance_request_list(request):
-    requests = MaintenanceRequest.objects.all()
-    context = {'requests': requests}
-    return render(request, 'maintenance_request/maintenance_request_list.html', context)
+    maintenance_requests = MaintenanceRequest.objects.all()
+    return render(request, 'rental/maintenance_requests/maintenance_request_list.html', {'maintenance_requests': maintenance_requests})
 
-def maintenance_request_create(request):
-    if request.method == 'POST':
-        form = MaintenanceRequestForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('maintenance_request_list')
-    else:
-        form = MaintenanceRequestForm()
-    context = {'form': form}
-    return render(request, 'maintenance_request/maintenance_request_form.html', context)
-
-def maintenance_request_update(request, pk):
-    maintenance_request = MaintenanceRequest.objects.get(pk=pk)
+def edit_maintenance_request(request, pk):
+    maintenance_request = get_object_or_404(MaintenanceRequest, pk=pk)
     if request.method == 'POST':
         form = MaintenanceRequestForm(request.POST, instance=maintenance_request)
         if form.is_valid():
@@ -156,5 +137,4 @@ def maintenance_request_update(request, pk):
             return redirect('maintenance_request_list')
     else:
         form = MaintenanceRequestForm(instance=maintenance_request)
-    context = {'form': form}
-    return render(request, 'maintenance_request/maintenance_request_form.html', context)
+    return render(request, 'rental/maintenance_requests/maintenance_request_form.html', {'form': form})
