@@ -4,29 +4,28 @@
 
 {% block content %}
 <h1>المستأجرون</h1>
-
-<a href="{% url 'add_tenant' %}" class="btn btn-primary">إضافة مستأجر جديد</a>
-
-<table class="table">
-  <thead>
-    <tr>
-      <th>اسم المستأجر</th>
-      <th>رقم الهاتف</th>
-      <th>الإجراءات</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for tenant in tenants %}
-    <tr>
-      <td>{{ tenant.name }}</td>
-      <td>{{ tenant.phone_number }}</td>
-      <td>
-        <a href="{% url 'edit_tenant' tenant.pk %}" class="btn btn-warning bt-sm">تعديل</a>
-        <a href="{% url 'delete_tenant' tenant.pk %}" class="btn btn-danger btn-sm">حذف</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
+<a href="{% url 'add_tenant' %}" class="btn btn-primary mb-3">إضافة مستأجر جديد</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>اسم المستأجر</th>
+            <th>رقم الهاتف</th>
+            <th>البريد الإلكتروني</th>
+            <th>الإجراءات</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tenant in tenants %}
+        <tr>
+            <td>{{ tenant.name }}</td>
+            <td>{{ tenant.phone_number }}</td>
+            <td>{{ tenant.email }}</td>
+            <td>
+                <a href="{% url 'edit_tenant' tenant.pk %}" class="btn btn-warning btn-sm">تعديل</a>
+                <a href="{% url 'delete_tenant' tenant.pk %}" class="btn btn-danger btn-sm">حذف</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
-
 {% endblock %}

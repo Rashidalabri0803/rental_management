@@ -3,14 +3,13 @@
 {% block content %}
 <h1>المدفوعات</h1>
 <a href="{% url 'add_payment' %}" class="btn btn-primary mb-3">إضافة دفعة جديدة</a>
-<table class="table">
+<table class="table table-bordered">
   <thead>
     <tr>
       <th>عقد الإيجار</th>
       <th>التاريخ</th>
       <th>المبلغ</th>
       <th>طريقة الدفع</th>
-      <th>ملاحظات</th>
     </tr>
   </thead>
   <tbody>
@@ -20,7 +19,6 @@
       <td>{{ payment.date }}</td>
       <td>{{ payment.amount }}</td>
       <td>{{ payment.get_payment_method_display }}</td>
-      <td>{{ payment.notes }}</td>
     </tr>
     {% endfor %}
   </tbody>

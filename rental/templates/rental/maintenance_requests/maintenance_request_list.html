@@ -3,7 +3,7 @@
 {% block content %}
 <h1>طلبات الصيانة</h1>
 <a href="{% url 'add_maintenance_request' %}" class="btn btn-primary mb-3">إضافة طلب صيانة جديد</a>
-<table class="table">
+<table class="table table-bordered">
   <thead>
     <tr>
       <th>الوحدة</th>
@@ -11,7 +11,6 @@
       <th>تاريخ الطلب</th>
       <th>تاريخ الإنجاز</th>
       <th>الحالة</th>
-      <th>الإجراءات</th>
     </tr>
   </thead>
   <tbody>
@@ -20,16 +19,12 @@
       <td>{{ request.unit.unit_number }}</td>
       <td>{{ request.description }}</td>
       <td>{{ request.request_date }}</td>
-      <td>{{ request.completion_date|default:"لم يكتمل بعد" }}</td>
       <td>
         {% if request.is_completed %}
           مكتمل
         {% else %}
           غير مكتمل
         {% endif %}
-      </td>
-      <td>
-        <a href="{% url 'edit_maintenance_request' request.pk %}" class="btn btn-warning btn-sm">تعديل</a>
       </td>
     </tr>
     {% endfor %}

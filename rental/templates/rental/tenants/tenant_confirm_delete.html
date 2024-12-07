@@ -3,8 +3,8 @@
 {% block title %}حذف مستأجر{% endblock %}
 
 {% block content %}
-    <h1>هل أنت متأكد من أنك تريد حذف المستأجر "{{ tenant.name }}"؟</h1>
-    <p>سيتم حذف جميع معلومات المستأجر، بما في ذلك العقود والإيجارات.</p>
+    <h1>حذف مستأجر</h1>
+    <p>هل أنت متأكد من أنك تريد حذف المستأجر "{{ tenant.name }}"؟</p>
     <form method="POST">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">حذف</button>

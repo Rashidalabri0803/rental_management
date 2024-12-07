@@ -7,7 +7,7 @@
 
 <a href="{% url 'add_lease' %}" class="btn btn-primary mb-3">إضافة عقد إيجار جديد</a>
 
-<table class="table">
+<table class="table table-bordered">
   <thead>
     <tr>
       <th>الوحدة</th>
@@ -23,9 +23,8 @@
     <tr>
       <td>{{ lease.unit.unit_number }}</td>
       <td>{{ lease.tenant.name }}</td>
-      <td>{{ lease.start_date" }}</td>
-      <td>{{ lease.end_date" }}</td>
-      <td>{{ lease.monthly_rent }}</td>
+      <td>{{ lease.start_date }}</td>
+      <td>{{ lease.end_date }}</td>
       <td>
         <a href="{% url 'edit_lease' lease.pk %}" class="btn btn-warning btn-sm">تعديل</a>
         <a href="{% url 'delete_lease' lease.pk %}" class="btn btn-danger btn-sm">حذف</a>
