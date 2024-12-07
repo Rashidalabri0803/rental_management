@@ -2,16 +2,16 @@ from django.urls import path
 from .views import UnitListView, UnitCreateView, UnitUpdateView, UnitDeleteView, UnitDetailView, LeaseListView, LeaseCreateView, LeaseUpdateView, LeaseDeleteView, PaymentListView, PaymentCreateView, MaintenanceRequestListView, MaintenanceRequestCreateView, MaintenanceRequestUpdateView
 
 urlpatterns = [
-    path('units/', UnitListView.as_view(), name='tenant_list'),
+    path('units/', UnitListView.as_view(), name='unit_list'),
     path('units/<int:pk>/', UnitDetailView.as_view(), name='unit_detail'),
     path('units/add/', UnitCreateView.as_view(), name='add_unit'),
     path('units/<int:pk>/edit/', UnitUpdateView.as_view(), name='edit_unit'),
     path('units/<int:pk>/delete/', UnitDeleteView.as_view(), name='delete_unit'),
 
-    path('tenants/', LeaseListView.as_view(), name='lease_list'),
-    path('tenants/add/', LeaseCreateView.as_view(), name='add_lease'),
-    path('tenants/<int:pk>/edit/', LeaseUpdateView.as_view(), name='edit_lease'),
-    path('tenants/<int:pk>/delete/', LeaseDeleteView.as_view(), name='delete_lease'),
+    path('tenants/', LeaseListView.as_view(), name='tenant_list'),
+    path('tenants/add/', LeaseCreateView.as_view(), name='add_tenant'),
+    path('tenants/<int:pk>/edit/', LeaseUpdateView.as_view(), name='edit_tenant'),
+    path('tenants/<int:pk>/delete/', LeaseDeleteView.as_view(), name='delete_tenant'),
 
     path('leases/', LeaseListView.as_view(), name='lease_list'),
     path('leases/add/', LeaseCreateView.as_view(), name='add_lease'),
