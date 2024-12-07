@@ -3,9 +3,14 @@ from django.db import models
 
 class Unit(models.Model):
     UNIT_TYPE_CHOICES = [
-        ('office', 'مكتب'),
-        ('apartment', 'شقة'),
-        ('shop', 'محل'),
+        ('office', "مكتب"),
+        ('apartment', "شقة"),
+        ('shop', "محل"),
+    ]
+    UNIT_STATUS_CHOICES = [
+        ('available', "متاحة"),
+        ('rented', "مؤجرة"),
+        ('maintenance', "تحت الصيانة"),
     ]
     unit_number = models.CharField(
       max_length=10,
@@ -28,18 +33,30 @@ class Unit(models.Model):
       decimal_places=2,
       verbose_name="سعر الإيجار الشهري"
     )
-    is_available = models.BooleanField(
-      verbose_name="متاح"
+    status = models.CharField(
+      max_length=15,
+      choices=UNIT_STATUS_CHOICES,
+      default='available',
+      verbose_name="حالة الوحدة"
     )
     description = models.TextField(
       blank=True,
       null=True,
       verbose_name="وصف الوحدة"
     )
+    created_at = models.DateTimeField(
+      auto_now_add=True,
+      verbose_name="تاريخ الإنشاء"
+    )
+    updated_at = models.DateTimeField(
+      auto_now=True,
+      verbose_name="تاريخ التحديث"
+    )
 
     class Meta:
         verbose_name = "وحدة"
         verbose_name_plural = "الوحدات"
+        ordering = ['unit_number']
 
     def __str__(self):
       return f"{dict(self.UNIT_TYPE_CHOICES).get(self.unit_type)} {self.unit_number}"
@@ -68,10 +85,16 @@ class Tenant(models.Model):
       max_length=255,
       verbose_name="العنوان"
     )
+    notes = models.TextField(
+      blank=True,
+      null=True,
+      verbose_name="ملاحظات إضافية"
+    )
 
     class Meta:
         verbose_name = "مستأجر"
         verbose_name_plural = "المستأجرون"
+        ordering = ['name']
 
     def __str__(self):
         return str(self.name)
@@ -109,13 +132,18 @@ class Lease(models.Model):
       null=True,
       verbose_name="ملف العقد"
     )
+    is_active = models.BooleanField(
+      default=True,
+      verbose_name="العقد نشط"
+    )
 
     class Meta:
         verbose_name = "عقد إيجار"
         verbose_name_plural = "عقود الإيجار"
+        ordering = ['start_date']
 
     def __str__(self):
-        return f"عقد إيجار {self.unit} - {self.tenant}"
+        return f"عقد إيجار للوحدة {self.unit.unit_number} - {self.tenant.name}"
 
 class Payment(models.Model):
     lease = models.ForeignKey(
@@ -134,7 +162,7 @@ class Payment(models.Model):
     payment_method = models.CharField(
       max_length=50,
       choices=[
-        ('cash', 'كاش'),
+        ('cash', 'نقدا'),
         ('credit_card', 'بطاقة الائتمان'),
         ('check', 'شيك'),
       ],
@@ -145,13 +173,19 @@ class Payment(models.Model):
       null=True,
       verbose_name="ملاحظات"
     )
+    notes = models.TextField(
+      blank=True,
+      null=True,
+      verbose_name="ملاحظات"
+    )
 
     class Meta:
         verbose_name = "دفعة"
         verbose_name_plural = "الدفعات"
+        ordering = ['-date']
 
     def __str__(self):
-        return f"دفعة {self.amount} للعقد {self.lease}"
+        return f"دفعة بقيمة{self.amount} للعقد {self.lease}"
 
 class MaintenanceRequest(models.Model):
     unit = models.ForeignKey(
@@ -174,10 +208,16 @@ class MaintenanceRequest(models.Model):
     is_completed = models.BooleanField(
       verbose_name="تم الإنجاز"
     )
+    notes = models.TextField(
+      blank=True,
+      null=True,
+      verbose_name="ملاحظات إضافية"
+    )
 
     class Meta:
         verbose_name = "طلب الصيانة"
         verbose_name_plural = "طلبات الصيانة"
+        ordering = ['-request_date']
 
     def __str__(self):
-        return f"صيانة - {self.unit}"
+        return f"طلب صيانة للوحدة {self.unit.unit_number}"
