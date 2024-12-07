@@ -20,8 +20,8 @@
     {% for unit in units %}
     <tr>
       <td>{{ unit.unit_number }}</td>
-      <td>{{ unit.unit_type }}</td>
-      <td>{{ unit.status }}</td>
+      <td>{{ unit.unit_type_display }}</td>
+      <td>{{ "متاحة" if unit.is_available else "غير متاحة" }}</td>
       <td>
         <a href="{% url 'rental:unit_detail' unit.pk %}" class="btn btn-info btn-sm">عرض</a>
         <a href="{% url 'rental:unit_update' unit.pk %}" class="btn btn-warning btn-sm">تعديل</a>

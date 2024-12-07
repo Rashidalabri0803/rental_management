@@ -1,0 +1,12 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}تفاصيل الوحدة{% endblock %}
+
+{% block content %}
+<h1>تفاصيل الوحدة</h1>
+<p>رقم الوحدة: {{ unit.unit_number }}</p>
+<p>النوع: {{ unit.unit_type_display }}</p>
+<p>الحالة: {{ "متاحة" if unit.is_available else "غير متاحة" }}</p>
+<p>الوصف: {{ unit.description }}</p>
+<a href="{% url 'unit_list' %}" class="btn btn-secondary">رجوع</a>
+{% endblock %}
