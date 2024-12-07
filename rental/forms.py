@@ -109,11 +109,11 @@ class PaymentForm(forms.ModelForm):
 class MaintenanceRequestForm(forms.ModelForm):
     class Meta:
         model = MaintenanceRequest
-        fields = ['unit', 'description', 'request_date', 'status', 'start_date', 'completion_date', 'notes']
+        fields = ['unit', 'description', 'status', 'start_date', 'completion_date', 'notes']
         widgets = {
             'unit': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'وصف المشكلة', 'rows': 3}),
-            'request_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            #'request_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'completion_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
