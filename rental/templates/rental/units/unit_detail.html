@@ -4,8 +4,8 @@
 
 {% block content %}
 <h1>تفاصيل الوحدة</h1>
-<p>رقم الوحدة: {{ unit.unit_number }}</p>
-<p>النوع: {{ unit.unit_type_display }}</p>
+<p>رقم الوحدة: {{ unit_number }}</p>
+<p>النوع: {{ unit.unit_type }}</p>
 <td>
   {% if unit.is_available %}
     متاحة
