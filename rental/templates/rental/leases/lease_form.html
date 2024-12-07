@@ -1,0 +1,13 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}إضافة/تعديل عقد إيجار{% endblock %}
+
+{% block content %}
+    <h1>إضافة/تعديل عقد إيجار</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">حفظ</button>
+        <a href="{% url 'lease_list' %}" class="btn btn-secondary">إلغاء</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}حذف وحدة{% endblock %}
+
+{% block content %}
+<h1>حذف وحدة</h1>
+<p>هل أنت متأكد من أنك تريد حذف الوحدة "{{ unit.unit_number }}"؟</p>
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">نعم ، حذف</button>
+    <a href="{% url 'unit_list' %}" class="btn btn-secondary">إلغاء</a>
+</form>
+{% endblock %}

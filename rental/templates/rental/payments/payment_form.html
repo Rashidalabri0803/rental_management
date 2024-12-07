@@ -1,0 +1,11 @@
+{% extends 'rental/base.html' %}
+{% block title %}إضافة دفعة{% endblock %}
+{% block content %}
+<h1>إضافة دفعة</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">حفظ</button>
+    <a href="{% url 'payment_list' %}" class="btn btn-secondary">إلغاء</a>
+</form>
+{% endblock %}

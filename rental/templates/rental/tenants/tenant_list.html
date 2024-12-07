@@ -1,0 +1,32 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}المستأجرون{% endblock %}
+
+{% block content %}
+<h1>المستأجرون</h1>
+
+<a href="{% url 'rental:tenant-create' %}" class="btn btn-primary">إضافة مستأجر جديد</a>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>اسم المستأجر</th>
+      <th>رقم الهاتف</th>
+      <th>الإجراءات</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tenant in tenants %}
+    <tr>
+      <td>{{ tenant.name }}</td>
+      <td>{{ tenant.phone_number }}</td>
+      <td>
+        <a href="{% url 'edit_tenant' tenant.pk %}" class="btn btn-warning bt-sm">تعديل</a>
+        <a href="{% url 'delete_tenant' tenant.pk %}" class="btn btn-danger btn-sm">حذف</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}حذف مستأجر{% endblock %}
+
+{% block content %}
+    <h1>هل أنت متأكد من أنك تريد حذف المستأجر "{{ tenant.name }}"؟</h1>
+    <p>سيتم حذف جميع معلومات المستأجر، بما في ذلك العقود والإيجارات.</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">حذف</button>
+        <a href="{% url 'tenant_list' %}" class="btn btn-secondary">إلغاء</a>
+    </form>
+{% endblock %}
