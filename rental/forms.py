@@ -1,16 +1,19 @@
 from django import forms
 from .models import Unit, Tenant, Lease, Payment, MaintenanceRequest
+from django.core.exceptions import ValidationError
 
 class UnitForm(forms.ModelForm):
     class Meta:
         model = Unit
-        fields = ['unit_number', 'unit_type', 'floor_number', 'size', 'rent_price' , 'status', 'description']
+        fields = ['unit_number', 'unit_type', 'floor_number', 'size', 'rent_price', 'electricity_meter_number', 'water_meter_number', 'status', 'description']
         widgets = {
             'unit_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الوحدة'}),
             'unit_type': forms.Select(attrs={'class': 'form-control'}),
             'floor_number': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'رقم الطابق'}),
             'size': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المساحة بالمتر المربع'}),
             'rent_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'سعر الإيجار الشهري'}),
+            'electricity_meter_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم عداد الكهرباء'}),
+            'water_meter_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم عداد المياه'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'وصف الوحدة', 'rows': 3}),
         }
@@ -20,6 +23,8 @@ class UnitForm(forms.ModelForm):
             'floor_number': 'رقم الطابق',
             'size': 'المساحة بالمتر المربع',
             'rent_price': 'سعر الإيجار الشهري',
+            'electricity_meter_number': 'رقم عداد الكهرباء',
+            'water_meter_number': 'رقم عداد المياه',
             'status': 'حالة الوحدة',
             'description': 'وصف الوحدة',
         }
@@ -27,13 +32,14 @@ class UnitForm(forms.ModelForm):
 class TenantForm(forms.ModelForm):
     class Meta:
         model = Tenant
-        fields = ['name', 'phone_number', 'email', 'national_id', 'address', 'notes']
+        fields = ['name', 'phone_number', 'email', 'national_id', 'address', 'commercial_record', 'notes']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المستأجر'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهاتف'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'البريد الإلكتروني'}),
             'national_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهوية الوطنية'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'عنوان الإقامة'}),
+            'commercial_record': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم السجل التجاري (للمستأجرين التجاريين)'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'ملاحظات إضافية', 'rows': 3}),
         }
         labels = {
@@ -42,6 +48,7 @@ class TenantForm(forms.ModelForm):
             'email': 'البريد الإلكتروني',
             'national_id': 'رقم الهوية الوطنية',
             'address': 'عنوان الإقامة',
+            'commercial_record': 'رقم السجل التجاري',
             'notes': 'ملاحظات إضافية',
         }
 
@@ -67,9 +74,9 @@ class LeaseForm(forms.ModelForm):
             'tenant': 'المستأجر',
             'start_date': 'تاريخ بداية العقد',
             'end_date': 'تاريخ نهاية العقد',
-            'duration_months': 'مدة العقد (بالشهور)',
-            'monthly_rent': 'الإيجار الشهري',
-            'deposit': 'المقدم',
+            'duration_months': 'مدة العقد (بالأشهر)',
+            'monthly_rent': 'الإيجار الشهري (ريال عماني)',
+            'deposit': 'المقدم (ريال عماني)',
             'contract_file': 'ملف العقد',
             'is_active': 'العقد نشط',
         }
@@ -101,7 +108,7 @@ class PaymentForm(forms.ModelForm):
         labels = {
             'lease': 'عقد الإيجار',
             'date': 'تاريخ الدفع',
-            'amount': 'المبلغ المدفوع',
+            'amount': 'المبلغ المدفوع (ريال عماني)',
             'payment_method': 'طريقة الدفع',
             'notes': 'ملاحظات إضافية',
         }
@@ -122,7 +129,7 @@ class MaintenanceRequestForm(forms.ModelForm):
         labels = {
             'unit': 'الوحدة',
             'description': 'وصف المشكلة',
-            'request_date': 'تاريخ الطلب',
+            #'request_date': 'تاريخ الطلب',
             'status': 'حالة الطلب',
             'start_date': 'تاريخ بدء الصيانة',
             'completion_date': 'تاريخ إنهاء الصيانة',
