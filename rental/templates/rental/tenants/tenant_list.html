@@ -3,14 +3,14 @@
 {% block title %}المستأجرون{% endblock %}
 
 {% block content %}
-<h1>المستأجرون</h1>
+<h1 class="mb-4">المستأجرون</h1>
 <a href="{% url 'add_tenant' %}" class="btn btn-primary mb-3">إضافة مستأجر جديد</a>
-<table class="table table-bordered">
-    <thead>
+<table class="table table-bordered tabel-striped">
+    <thead class="tabel-dark">
         <tr>
             <th>اسم المستأجر</th>
             <th>رقم الهاتف</th>
-            <th>البريد الإلكتروني</th>
+            <th>رقم البطاقة المدنية</th>
             <th>الإجراءات</th>
         </tr>
     </thead>
@@ -19,7 +19,7 @@
         <tr>
             <td>{{ tenant.name }}</td>
             <td>{{ tenant.phone_number }}</td>
-            <td>{{ tenant.email }}</td>
+            <td>{{ tenant.national_id }}</td>
             <td>
                 <a href="{% url 'edit_tenant' tenant.pk %}" class="btn btn-warning btn-sm">تعديل</a>
                 <a href="{% url 'delete_tenant' tenant.pk %}" class="btn btn-danger btn-sm">حذف</a>

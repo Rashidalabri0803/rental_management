@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>تفاصيل الوحدة</h1>
-<p><strong>رقم الوحدة:</strong> {{ unit_number }}</p>
+<p><strong>رقم الوحدة:</strong> {{ unit.unit_number }}</p>
 <p><strong>النوع:</strong> {{ unit.get_unit_type_display }}</p>
 <p><strong>الحالة:</strong> {{ unit.get_status_display }}</p>
 <p><strong>الوصف:</strong> {{ unit.description }}</p>

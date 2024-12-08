@@ -3,12 +3,12 @@
 {% block title %} الوحدات {% endblock %}
 
 {% block content %}
-<h1>الوحدات</h1>
+<h1 class="mb-4">الوحدات</h1>
 
 <a href="{% url 'add_unit' %}" class="btn btn-primary mb-3">إضافة وحدة جديدة</a>
 
-<table class="table table-bordered">
-  <thead>
+<table class="table table-bordered table-striped">
+  <thead class="table-dark">
     <tr>
       <th>رقم الوحدة</th>
       <th>النوع</th>
@@ -20,14 +20,17 @@
     {% for unit in units %}
     <tr>
       <td>{{ unit.unit_number }}</td>
-      <td>{{ unit.unit_type }}</td>
+      <td>{{ unit.get_unit_type_display }}</td>
       <td>
-        {% if unit.is_available %}
-          متاحة
+        {% if unit.status == 'available' %}
+          <span class="badge bg-success">متاحة</span>
+        {% elif unit.status == 'rented' %}
+          <span class="badge bg-warning text-dark">مؤجرة</span>
         {% else %}
-          غير متاحة
+          <span class="badge bg-danger">تحت الصيانة</span>
         {% endif %}
       </td>
+      <td>{{ unit.rent_price }} ر.ع</td>
       <td>
         <a href="{% url 'unit_detail' unit.pk %}" class="btn btn-info btn-sm">عرض</a>
         <a href="{% url 'edit_unit' unit.pk %}" class="btn btn-warning btn-sm">تعديل</a>
@@ -37,5 +40,4 @@
     {% endfor %}
   </tbody>
 </table>
-
 {% endblock %}
