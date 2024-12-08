@@ -99,6 +99,10 @@ class LeaseCreateView(CreateView):
         messages.success(self.request, "تم إنشاء عقد الإيجار بنجاح.")
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request, "حدث خطأ أثناء إنشاء العقد. يرجى التحقق من البيانات المدخلة")
+        return super().form_invalid(form)
+        
 class LeaseUpdateView(UpdateView):
     model = Lease
     form_class = LeaseForm
