@@ -16,7 +16,7 @@ class BuildingCrateView(CreateView):
     model = Building
     form_class = BuildingForm
     template_name = "rental/buildings/building_form.html"
-    success_url = reverse_lazy("building_list")
+    success_url = reverse_lazy("rental:building_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تمت إضافة المبنى بنجاح")
@@ -26,7 +26,7 @@ class BuildingUpdateView(UpdateView):
     model = Building
     form_class = BuildingForm
     template_name = "rental/buildings/building_form.html"
-    success_url = reverse_lazy("building_list")
+    success_url = reverse_lazy("rental:building_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تم تعديل بيانات المبنى بنجاح")
@@ -35,7 +35,7 @@ class BuildingUpdateView(UpdateView):
 class BuildingDeleteView(DeleteView):
     model = Building
     template_name = "rental/buildings/building_confirm_delete.html"
-    success_url = reverse_lazy("building_list")
+    success_url = reverse_lazy("rental:building_list")
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "تم حذف المبنى بنجاح")
@@ -56,7 +56,7 @@ class UnitCreateView(CreateView):
     model = Unit
     form_class = UnitForm
     template_name = "rental/units/unit_form.html"
-    success_url = reverse_lazy("unit_list")
+    success_url = reverse_lazy("rental:unit_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تمت إضافة الوحدة بنجاح.")
@@ -66,7 +66,7 @@ class UnitUpdateView(UpdateView):
     model = Unit
     form_class = UnitForm
     template_name = "rental/units/unit_form.html"
-    success_url = reverse_lazy("unit_list")
+    success_url = reverse_lazy("rental:unit_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تم تعديل بيانات الوحدة بنجاح.")
@@ -75,7 +75,7 @@ class UnitUpdateView(UpdateView):
 class UnitDeleteView(DeleteView):
     model = Unit
     template_name = "rental/units/unit_confirm_delete.html"
-    success_url = reverse_lazy("unit_list")
+    success_url = reverse_lazy("rental:unit_list")
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "تم حذف الوحدة بنجاح.")
@@ -92,7 +92,7 @@ class TenantCreateView(CreateView):
     model = Tenant
     form_class = TenantForm
     template_name = "rental/tenants/tenant_form.html"
-    success_url = reverse_lazy("tenant_list")
+    success_url = reverse_lazy("rental:tenant_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تمت إضافة المستأجر بنجاح.")
@@ -102,7 +102,7 @@ class TenantUpdateView(UpdateView):
     model = Tenant
     form_class = TenantForm
     template_name = "rental/tenants/tenant_form.html"
-    success_url = reverse_lazy("tenant_list")
+    success_url = reverse_lazy("rental:tenant_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تم تعديل بيانات المستأجر بنجاح.")
@@ -111,7 +111,7 @@ class TenantUpdateView(UpdateView):
 class TenantDeleteView(DeleteView):
     model = Tenant
     template_name = "rental/tenants/tenant_confirm_delete.html"
-    success_url = reverse_lazy("tenant_list")
+    success_url = reverse_lazy("rental:tenant_list")
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "تم حذف المستأجر بنجاح.")
@@ -128,7 +128,7 @@ class SupervisorCreateView(CreateView):
     model = Supervisor
     form_class = SupervisorForm
     template_name = "rental/supervisors/supervisor_form.html"
-    success_url = reverse_lazy("supervisor_list")
+    success_url = reverse_lazy("rental:supervisor_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تمت إضافة المشرف بنجاح.")
@@ -138,7 +138,7 @@ class SupervisorUpdateView(UpdateView):
     model = Supervisor
     form_class = SupervisorForm
     template_name = "rental/supervisors/supervisor_form.html"
-    success_url = reverse_lazy("supervisor_list")
+    success_url = reverse_lazy("rental:supervisor_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تم تعديل بيانات المشرف بنجاح.")
@@ -147,7 +147,7 @@ class SupervisorUpdateView(UpdateView):
 class SupervisorDeleteView(DeleteView):
     model = Supervisor
     template_name = "rental/supervisors/supervisor_confirm_delete.html"
-    success_url = reverse_lazy("supervisor_list")
+    success_url = reverse_lazy("rental:supervisor_list")
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, "تم حذف المشرف بنجاح.")
@@ -164,7 +164,7 @@ class LeaseCreateView(CreateView):
     model = Lease
     form_class = LeaseForm
     template_name = "rental/leases/lease_form.html"
-    success_url = reverse_lazy("lease_list")
+    success_url = reverse_lazy("rental:lease_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تم إنشاء عقد الإيجار بنجاح.")
@@ -185,7 +185,7 @@ class PaymentCreateView(CreateView):
     model = Payment
     form_class = PaymentForm
     template_name = "rental/payments/payment_form.html"
-    success_url = reverse_lazy("payment_list")
+    success_url = reverse_lazy("rental:payment_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تم تسجيل الدفعة بنجاح.")
@@ -201,7 +201,7 @@ class MaintenanceRequestCreateView(CreateView):
     model = MaintenanceRequest
     form_class = MaintenanceRequestForm
     template_name = "rental/maintenance_requests/maintenance_request_form.html"
-    success_url = reverse_lazy("maintenance_request_list")
+    success_url = reverse_lazy("rental:maintenance_request_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تمت إضافة طلب الصيانة بنجاح.")
@@ -211,7 +211,7 @@ class MaintenanceRequestUpdateView(UpdateView):
     model = MaintenanceRequest
     form_class = MaintenanceRequestForm
     template_name = "rental/maintenance_requests/maintenance_request_form.html"
-    success_url = reverse_lazy("maintenance_request_list")
+    success_url = reverse_lazy("rental:maintenance_request_list")
 
     def form_valid(self, form):
         messages.success(self.request, "تم تعديل طلب الصيانة بنجاح.")

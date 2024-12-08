@@ -20,7 +20,7 @@
       <td>{{ payment.amount }}</td>
       <td>{{ payment.get_payment_method_display }}</td>
       <td>
-        <a href="{% url 'edit_payment' payment.pk %}" class="btn btn-warning btn-sm">تعديل</a>
+        <a href="{% url 'rental:edit_payment' payment.pk %}" class="btn btn-warning btn-sm">تعديل</a>
       </td>
     </tr>
     {% endfor %}

@@ -10,6 +10,6 @@
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="btn btn-success">حفظ</button>
-    <a href="{% url 'tenant_list' %}" class="btn btn-secondary">إلغاء</a>
+    <a href="{% url 'rental:tenant_list' %}" class="btn btn-secondary">إلغاء</a>
   </form>
 {% endblock %}

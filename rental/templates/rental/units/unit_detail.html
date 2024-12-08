@@ -8,5 +8,5 @@
 <p><strong>النوع:</strong> {{ unit.get_unit_type_display }}</p>
 <p><strong>الحالة:</strong> {{ unit.get_status_display }}</p>
 <p><strong>الوصف:</strong> {{ unit.description }}</p>
-<a href="{% url 'unit_list' %}" class="btn btn-secondary">رجوع</a>
+<a href="{% url 'rental:unit_list' %}" class="btn btn-secondary">رجوع</a>
 {% endblock %}

@@ -8,6 +8,6 @@
 <form method="POST">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">حذف</button>
-    <a href="{% url 'maintenance_request_list' %}" class="btn btn-secondary">إلغاء</a>
+    <a href="{% url 'rental:maintenance_request_list' %}" class="btn btn-secondary">إلغاء</a>
 </form>
 {% endblock %}
