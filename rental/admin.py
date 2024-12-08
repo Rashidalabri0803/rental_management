@@ -13,8 +13,8 @@ class UnitAdmin(admin.ModelAdmin):
         ('المعلومات الأساسية',{
             'fields': ('unit_number', 'unit_type', 'floor_number', 'size', 'description'),
         }),
-        ('المعلومات المالية',{
-            'fields': ('rent_price', 'status'),
+        ('التفاصيل المالية',{
+            'fields': ('rent_price', 'status', 'electricity_meter_number', 'water_meter_number'),
         }),
         ('التواريخ',{
             'fields': ('created_at', 'updated_at'),
@@ -41,7 +41,7 @@ class TenantAdmin(admin.ModelAdmin):
 class PaymentInline(admin.TabularInline):
     """عرض المدفوعات المرتبطة بعقد إيجار داخل لوحة الإدارة."""
     model = Payment
-    extra = 1
+    extra = 0
     readonly_fields = ('date', 'amount', 'payment_method')
     fields = ('date', 'amount', 'payment_method', 'notes')
     

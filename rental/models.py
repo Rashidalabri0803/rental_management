@@ -1,5 +1,5 @@
-import builtins
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 UNIT_TYPE_CHOICES = [
   ('office', "مكتب"),
@@ -46,6 +46,18 @@ class Unit(models.Model):
       max_digits=10,
       decimal_places=2,
       verbose_name="سعر الإيجار الشهري (ريال عماني)"
+    )
+    electricity_meter_number = models.CharField(
+      max_length=50,
+      blank=True,
+      null=True,
+      verbose_name="رقم عداد الكهرباء"
+    )
+    water_meter_number = models.CharField(
+      max_length=50,
+      blank=True,
+      null=True,
+      verbose_name="رقم عداد المياه"
     )
     status = models.CharField(
       max_length=15,
@@ -237,10 +249,7 @@ class MaintenanceRequest(models.Model):
     completion_date = models.DateField(
       blank=True,
       null=True,
-      verbose_name="تاريخ الإنجاز"
-    )
-    is_completed = models.BooleanField(
-      verbose_name="تم الإنجاز"
+      verbose_name="تاريخ إنهاء الصيانة"
     )
     notes = models.TextField(
       blank=True,
