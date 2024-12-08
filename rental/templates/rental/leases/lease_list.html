@@ -3,13 +3,14 @@
 {% block title %}عقود الإيجار{% endblock %}
 
 {% block content %}
-<h1>عقود الإيجار</h1>
+<h1 class="mb-4">عقود الإيجار</h1>
 
 <a href="{% url 'add_lease' %}" class="btn btn-primary mb-3">إضافة عقد إيجار جديد</a>
 
-<table class="table table-bordered">
-  <thead>
+<table class="table table-bordered table-striped">
+  <thead class="table-dark">
     <tr>
+      <th>رقم العقد</th>
       <th>الوحدة</th>
       <th>المستأجر</th>
       <th>تاريخ البداية</th>
@@ -21,10 +22,12 @@
   <tbody>
     {% for lease in leases %}
     <tr>
+      <td>{{ lease.contract_number }}</td>
       <td>{{ lease.unit.unit_number }}</td>
       <td>{{ lease.tenant.name }}</td>
       <td>{{ lease.start_date }}</td>
       <td>{{ lease.end_date }}</td>
+      <td>{{ lease.monthly_rent }} ر.ع</td>
       <td>
         <a href="{% url 'edit_lease' lease.pk %}" class="btn btn-warning btn-sm">تعديل</a>
         <a href="{% url 'delete_lease' lease.pk %}" class="btn btn-danger btn-sm">حذف</a>
@@ -33,5 +36,4 @@
     {% endfor %}
   </tbody>
 </table>
-
 {% endblock %}
