@@ -3,7 +3,7 @@ from .models import Unit, Tenant, Lease, Payment, MaintenanceRequest
 
 @admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):
-    list_display = ('unit_number', 'unit_type', 'floor_number', 'rent_price', 'status')
+    list_display = ('building', 'unit_number', 'unit_type', 'floor_number', 'rent_price', 'status')
     list_filter = ('unit_type', 'status', 'floor_number')
     search_fields = ('unit_number', 'description')
     ordering = ('unit_number',)
@@ -16,17 +16,13 @@ class UnitAdmin(admin.ModelAdmin):
         ('التفاصيل المالية',{
             'fields': ('rent_price', 'status', 'electricity_meter_number', 'water_meter_number'),
         }),
-        ('التواريخ',{
-            'fields': ('created_at', 'updated_at'),
-        }),
     )
-    readonly_fields = ('created_at', 'updated_at')
 
 @admin.register(Tenant)
 class TenantAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone_number', 'email', 'national_id', 'commercial_record')
-    search_fields = ('name', 'phone_number', 'national_id', 'commercial_record')
-    list_filter = ('commercial_record',)
+    list_display = ('name', 'phone_number', 'email', 'national_id')
+    search_fields = ('name', 'phone_number', 'national_id')
+    
     ordering = ('name',)
 
     fieldsets = (
@@ -34,7 +30,7 @@ class TenantAdmin(admin.ModelAdmin):
             'fields': ('name', 'phone_number', 'email', 'national_id'),
         }),
         ('السجل التجاري والموقع',{
-            'fields': ('commercial_record', 'address', 'notes'),
+            'fields': ('address', 'notes'),
         }),
     )
 

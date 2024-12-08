@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 UNIT_TYPE_CHOICES = [
@@ -24,8 +25,40 @@ MAINTENANCE_STATUS_CHOICES = [
   ('completed', "مكتملة"),
 ]
 
+class Building(models.Model):
+  name = models.CharField(
+    max_length=100,
+    unique=True,
+    verbose_name=_("اسم المبني"),
+  )
+  location = models.TextField(
+    verbose_name=_("موقع المبني"),
+  )
+  facilities = models.TextField(
+    blank=True,
+    null=True,
+    verbose_name=_("المرافق المتوفرة"),
+  )
+  created_at = models.DateTimeField(
+    auto_now_add=True,
+    verbose_name=_("تاريخ الإضافة"),
+  )
+  updated_at = models.DateTimeField(
+    auto_now=True,
+    verbose_name=_("تاريخ التحديث"),
+  )
+
+  def __str__(self):
+    return self.name
+
 class Unit(models.Model): 
     """يمثل الوحدات السكنية أو التجارية في المبني"""
+    building = models.ForeignKey(
+      Building,
+      on_delete=models.CASCADE,
+      related_name="units",
+      verbose_name=_("المبني"),
+    )
     unit_number = models.CharField(
       max_length=10,
       unique=True,
@@ -70,14 +103,6 @@ class Unit(models.Model):
       null=True,
       verbose_name="وصف الوحدة"
     )
-    created_at = models.DateTimeField(
-      auto_now_add=True,
-      verbose_name="تاريخ الإضافة"
-    )
-    updated_at = models.DateTimeField(
-      auto_now=True,
-      verbose_name="تاريخ التحديث"
-    )
 
     class Meta:
         verbose_name = "وحدة"
@@ -85,7 +110,7 @@ class Unit(models.Model):
         ordering = ['unit_number']
 
     def __str__(self):
-      return f"وحدة {self.unit_number} - {self.get_unit_type_display()}"
+      return f"وحدة {self.unit_number} - {self.building.name}"
 
 
 class Tenant(models.Model):
@@ -112,12 +137,6 @@ class Tenant(models.Model):
       max_length=255,
       verbose_name="عنوان الإقامة"
     )
-    commercial_record = models.CharField(
-      max_length=50,
-      blank=True,
-      null=True,
-      verbose_name="رقم السجل التجاري (للوحدات التجارية)"
-    )
     notes = models.TextField(
       blank=True,
       null=True,
@@ -131,7 +150,33 @@ class Tenant(models.Model):
 
     def __str__(self):
         return str(self.name)
+      
+class Supervisor(models.Model):
+    """يمثل المشرفين"""
+    user = models.OneToOneField(
+      User,
+      on_delete=models.CASCADE,
+      related_name="supervisor",
+      verbose_name="حساب المستخدم"
+    )
+    building = models.ForeignKey(
+      Building,
+      on_delete=models.CASCADE,
+      related_name="supervisors",
+      verbose_name="المبني"
+    )
+    phone_number = models.CharField(
+      max_length=15,
+      verbose_name="رقم الهاتف"
+    )
 
+    class Meta:
+        verbose_name = "مشرف"
+        verbose_name_plural = "مشروفون"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.building.name}"
+      
 class Lease(models.Model):
     """يمثل عقود الإيجار"""
     contract_number = models.CharField(

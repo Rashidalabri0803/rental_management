@@ -32,14 +32,14 @@ class UnitForm(forms.ModelForm):
 class TenantForm(forms.ModelForm):
     class Meta:
         model = Tenant
-        fields = ['name', 'phone_number', 'email', 'national_id', 'address', 'commercial_record', 'notes']
+        fields = ['name', 'phone_number', 'email', 'national_id', 'address', 'notes']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المستأجر'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهاتف'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'البريد الإلكتروني'}),
             'national_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهوية الوطنية'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'عنوان الإقامة'}),
-            'commercial_record': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم السجل التجاري (للمستأجرين التجاريين)'}),
+            #'commercial_record': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم السجل التجاري (للمستأجرين التجاريين)'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'ملاحظات إضافية', 'rows': 3}),
         }
         labels = {
