@@ -48,22 +48,26 @@ class TenantForm(forms.ModelForm):
 class LeaseForm(forms.ModelForm):
     class Meta:
         model = Lease
-        fields = ['unit', 'tenant', 'start_date', 'end_date', 'monthly_rent', 'deposit', 'contract_file', 'is_active']
+        fields = ['contract_number', 'unit', 'tenant', 'start_date', 'end_date', 'duration_months', 'monthly_rent', 'deposit', 'contract_file', 'is_active']
         widgets = {
+            'contract_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم العقد'}),
             'unit': forms.Select(attrs={'class': 'form-control'}),
             'tenant': forms.Select(attrs={'class': 'form-control'}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'duration_months': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مدة العقد (بالشهور)'}),
             'monthly_rent': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'الإيجار الشهري'}),
             'deposit': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المقدم'}),
             'contract_file': forms.FileInput(attrs={'class': 'form-control-file'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         labels = {
+            'contract_number': 'رقم العقد',
             'unit': 'الوحدة',
             'tenant': 'المستأجر',
             'start_date': 'تاريخ بداية العقد',
             'end_date': 'تاريخ نهاية العقد',
+            'duration_months': 'مدة العقد (بالشهور)',
             'monthly_rent': 'الإيجار الشهري',
             'deposit': 'المقدم',
             'contract_file': 'ملف العقد',
@@ -74,8 +78,13 @@ class LeaseForm(forms.ModelForm):
             cleaned_data = super().clean()
             start_date = cleaned_data.get('start_date')
             end_date = cleaned_data.get('end_date')
+            duration_months = cleaned_data.get('duration_months')
             if start_date and end_date and start_date >= end_date:
-                raise forms.ValidationError('تاريخ نهاية العقد يجب أن يكون بعد تاريخ البداية.')
+                raise forms.ValidationError("تاريخ نهاية العقد يجب أن يكون بعد تاريخ البداية.")
+            if start_date and end_date and duration_months:
+                calculated_duration = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
+                if calculated_duration != duration_months:
+                    raise forms.ValidationError("مدة العقد لا تتطابق مع التواريخ المدخلة")
             return cleaned_data
 
 class PaymentForm(forms.ModelForm):
@@ -100,18 +109,22 @@ class PaymentForm(forms.ModelForm):
 class MaintenanceRequestForm(forms.ModelForm):
     class Meta:
         model = MaintenanceRequest
-        fields = ['unit', 'description', 'completion_date', 'is_completed', 'notes']
+        fields = ['unit', 'description', 'request_date', 'status', 'start_date', 'completion_date', 'notes']
         widgets = {
             'unit': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'وصف المشكلة', 'rows': 3}),
+            'request_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'completion_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'is_completed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'ملاحظات إضافية', 'rows': 3}),
         }
         labels = {
             'unit': 'الوحدة',
             'description': 'وصف المشكلة',
-            'completion_date': 'تاريخ الإنجاز',
-            'is_completed': 'تم الإنجاز',
+            'request_date': 'تاريخ الطلب',
+            'status': 'حالة الطلب',
+            'start_date': 'تاريخ بدء الصيانة',
+            'completion_date': 'تاريخ إنهاء الصيانة',
             'notes': 'ملاحظات إضافية',
         }
