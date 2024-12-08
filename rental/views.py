@@ -34,7 +34,7 @@ class UnitUpdateView(UpdateView):
     success_url = reverse_lazy("unit_list")
 
     def form_valid(self, form):
-        messages.success(self.request, "تم تعديل الوحدة بنجاح.")
+        messages.success(self.request, "تم تعديل بيانات الوحدة بنجاح.")
         return super().form_valid(form)
 
 class UnitDeleteView(DeleteView):
@@ -135,7 +135,7 @@ class PaymentCreateView(CreateView):
     success_url = reverse_lazy("payment_list")
 
     def form_valid(self, form):
-        messages.success(self.request, "تم إضافة دفعة بنجاح.")
+        messages.success(self.request, "تم تسجيل الدفعة بنجاح.")
         return super().form_valid(form)
 
 class MaintenanceRequestListView(ListView):
@@ -151,7 +151,7 @@ class MaintenanceRequestCreateView(CreateView):
     success_url = reverse_lazy("maintenance_request_list")
 
     def form_valid(self, form):
-        messages.success(self.request, "تم إنشاء طلب الصيانة بنجاح.")
+        messages.success(self.request, "تمت إضافة طلب الصيانة بنجاح.")
         return super().form_valid(form)
 
 class MaintenanceRequestUpdateView(UpdateView):
