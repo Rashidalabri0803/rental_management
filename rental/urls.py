@@ -33,5 +33,5 @@ urlpatterns = [
     path('maintenance/', MaintenanceRequestListView.as_view(), name='maintenance_request_list'),
     path('maintenance/add/', MaintenanceRequestCreateView.as_view(), name='add_maintenance_request'),
     path('maintenance/<int:pk>/edit/', MaintenanceRequestUpdateView.as_view(), name='edit_maintenance_request'),
-    path('maintenance/<int:pk>/delete/', MaintenanceRequestDeleteView.as_view(), name='delete_maintenance_request')و
+    path('maintenance/<int:pk>/delete/', MaintenanceRequestDeleteView.as_view(), name='delete_maintenance_request'),
 ]

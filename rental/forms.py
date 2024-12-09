@@ -143,3 +143,17 @@ class PaymentForm(forms.ModelForm):
             'payment_method': 'طريقة الدفع',
             'notes': 'ملاحظات إضافية',
         }
+
+class MaintenanceRequestForm(forms.ModelForm):
+    class Meta:
+        model = MaintenanceRequest
+        fields = ['building', 'unit', 'request_date', 'request_type', 'description', 'status', 'notes']
+        widgets = {
+            'building': forms.Select(attrs={'class': 'form-control'}),
+            'unit': forms.Select(attrs={'class': 'form-control'}),
+            'request_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'request_type': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'وصف الطلب', 'rows': 3}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'ملاحظات إضافية', 'rows': 3}),
+        }
