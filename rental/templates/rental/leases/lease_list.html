@@ -29,8 +29,8 @@
       <td>{{ lease.end_date }}</td>
       <td>{{ lease.monthly_rent }} ر.ع</td>
       <td>
-
-
+        <a href="{% url 'rental:edit_lease' lease.pk %}" class="btn btn-warning btn-sm">تعديل</a>
+        <a href="{% url 'rental:delete_lease' lease.pk %}" class="btn btn-danger btn-sm">حذف</a>
       </td>
     </tr>
     {% endfor %}
