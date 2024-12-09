@@ -23,7 +23,7 @@ class BuildingAdmin(admin.ModelAdmin):
 
 @admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):
-    list_display = ('unit_number', 'building', 'unit_type', 'floor_number', 'rent_price', 'status', 'is_available')
+    list_display = ('unit_number', 'building', 'unit_type', 'floor_number', 'rent_price', 'status')
     list_filter = ('building', 'unit_type', 'status', 'floor_number')
     search_fields = ('unit_number', 'building__name', 'description')
     ordering = ('unit_number',)
