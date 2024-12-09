@@ -1,0 +1,14 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}لوحة تحكم المستأجر{% endblock %}
+
+{% block content %}
+<h1>لوحة تحكم المستأجر</h1>
+<p>مرحبا: {{ request.user.username }}</p>
+<h3>عقودك:</h3>
+<ul>
+    {% for lease in leases %}
+    <li>{{ lease.contract_number }} - الوحدة {{ lease.unit.unit_number }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

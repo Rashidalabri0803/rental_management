@@ -1,0 +1,12 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}لوحة تحكم المشرف{% endblock %}
+
+{% block content %}
+<h1>مرحبا {{ request.user.username }}</h1>
+<h3>إحصائيات:</h3>
+<ul>
+    <li>إجمالي الوحدات: {{ units.count }}</li>
+    <li>إجمالي المستأجرين: {{ tenants.count }}</li>
+</ul>
+{% endblock %}
