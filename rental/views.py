@@ -169,6 +169,25 @@ class LeaseCreateView(CreateView):
     def form_invalid(self, form):
         messages.error(self.request, "حدث خطأ أثناء إنشاء العقد. يرجى التحقق من البيانات المدخلة")
         return super().form_invalid(form)
+
+class LeaseUpdateView(UpdateView):
+    model = Lease
+    form_class = LeaseForm
+    template_name = "rental/leases/lease_form.html"
+    success_url = reverse_lazy("rental:lease_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم تعديل بيانات العقد بنجاح.")
+        return super().form_valid(form)
+
+class LeaseDeleteView(DeleteView):
+    model = Lease
+    template_name = "rental/leases/lease_confirm_delete.html"
+    success_url = reverse_lazy("rental:lease_list")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "تم حذف العقد بنجاح.")
+        return super().delete(request, *args, **kwargs)
         
 
 class PaymentListView(ListView):

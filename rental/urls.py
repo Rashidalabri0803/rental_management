@@ -24,6 +24,8 @@ urlpatterns = [
 
     path('leases/', views.LeaseListView.as_view(), name='lease_list'),
     path('leases/add/', views.LeaseCreateView.as_view(), name='add_lease'),
+    path('leases/<int:pk>/edit/', views.LeaseUpdateView.as_view(), name='edit_lease'),
+    path('leases/<int:pk>/delete/', views.LeaseDeleteView.as_view(), name='delete_lease'),
 
     path('payments/', views.PaymentListView.as_view(), name='payment_list'),
     path('payments/add/', views.PaymentCreateView.as_view(), name='add_payment'),
