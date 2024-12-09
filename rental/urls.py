@@ -3,7 +3,7 @@ from . import views
 app_name = 'rental'
 urlpatterns = [
     path('builings/', views.BuildingListView.as_view(), name='building_list'),
-    path('buildings/add/', views.BuildingCreateView.as_view(), name='add_building'),
+    path('buildings/add/', views.BuildingCrateView.as_view(), name='add_building'),
     path('buildings/<int:pk>/edit/', views.BuildingUpdateView.as_view(), name='edit_building'),
     path('buildings/<int:pk>/delete/', views.BuildingDeleteView.as_view(), name='delete_building'),
 
@@ -24,8 +24,6 @@ urlpatterns = [
 
     path('leases/', views.LeaseListView.as_view(), name='lease_list'),
     path('leases/add/', views.LeaseCreateView.as_view(), name='add_lease'),
-    path('leases/<int:pk>/edit/', views.LeaseUpdateView.as_view(), name='edit_lease'),
-    path('leases/<int:pk>/delete/', views.LeaseDeleteView.as_view(), name='delete_lease'),
 
     path('payments/', views.PaymentListView.as_view(), name='payment_list'),
     path('payments/add/', views.PaymentCreateView.as_view(), name='add_payment'),
@@ -33,5 +31,4 @@ urlpatterns = [
     path('maintenance/', views.MaintenanceRequestListView.as_view(), name='maintenance_request_list'),
     path('maintenance/add/', views.MaintenanceRequestCreateView.as_view(), name='add_maintenance_request'),
     path('maintenance/<int:pk>/edit/', views.MaintenanceRequestUpdateView.as_view(), name='edit_maintenance_request'),
-    path('maintenance/<int:pk>/delete/', views.MaintenanceRequestDeleteView.as_view(), name='delete_maintenance_request'),
 ]
