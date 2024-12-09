@@ -5,8 +5,7 @@
 {% block content %}
 <h1 class="mb-4">الوحدات</h1>
 
-<a href="{% url 'rental:add_unit' %}" class="btn btn-primary mb-3">إضافة وحدة جديدة</a>
-
+<a href="{% url 'rental:add_unit' %}" class="btn btn-primary mb-3"><i class="fas fa-plus"></i>إضافة وحدة جديدة</a>
 <table class="table table-bordered table-striped">
   <thead class="table-dark">
     <tr>
@@ -33,8 +32,8 @@
       </td>
       <td>{{ unit.rent_price }} ر.ع</td>
       <td>
-        <a href="{% url 'rental:edit_unit' unit.pk %}" class="btn btn-warning btn-sm">تعديل</a>
-        <a href="{% url 'rental:delete_unit' unit.pk %}" class="btn btn-danger btn-sm">حذف</a>
+        <a href="{% url 'rental:edit_unit' unit.pk %}" class="btn btn-warning btn-sm"><i class"fas fa-edit"></i>تعديل</a>
+        <a href="{% url 'rental:delete_unit' unit.pk %}" class="btn btn-danger btn-sm"><i class"fas fa-trash"></i>حذف</a>
       </td>
     </tr>
     {% endfor %}
