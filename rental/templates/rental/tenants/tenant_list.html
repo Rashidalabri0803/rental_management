@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1 class="mb-4">المستأجرون</h1>
-<a href="{% url 'rental:add_tenant' %}" class="btn btn-primary mb-3">إضافة مستأجر جديد</a>
+<a href="{% url 'rental:add_tenant' %}" class="btn btn-primary mb-3"><i class="fas fa-user-plus"></i>إضافة مستأجر جديد</a>
 <table class="table table-bordered table-striped">
     <thead class="table-dark">
         <tr>
@@ -21,8 +21,8 @@
             <td>{{ tenant.phone_number }}</td>
             <td>{{ tenant.national_id }}</td>
             <td>
-                <a href="{% url 'rental:edit_tenant' tenant.pk %}" class="btn btn-warning btn-sm">تعديل</a>
-                <a href="{% url 'rental:delete_tenant' tenant.pk %}" class="btn btn-danger btn-sm">حذف</a>
+                <a href="{% url 'rental:edit_tenant' tenant.pk %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i>تعديل</a>
+                <a href="{% url 'rental:delete_tenant' tenant.pk %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>حذف</a>
             </td>
         </tr>
         {% endfor %}

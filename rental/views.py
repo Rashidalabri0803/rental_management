@@ -231,3 +231,11 @@ class MaintenanceRequestUpdateView(UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "تم تعديل طلب الصيانة بنجاح.")
         return super().form_valid(form)
+
+class MaintenanceRequestDeleteView(DeleteView):
+    model = MaintenanceRequest
+    template_name = "rental/maintenance_requests/maintenance_request_confirm_delete.html"
+    success_url = reverse_lazy("rental:maintenance_request_list")
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "تم حذف طلب الصيانة بنجاح.")
+        return super().delete(request, *args, **kwargs)

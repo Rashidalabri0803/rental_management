@@ -33,4 +33,5 @@ urlpatterns = [
     path('maintenance/', views.MaintenanceRequestListView.as_view(), name='maintenance_request_list'),
     path('maintenance/add/', views.MaintenanceRequestCreateView.as_view(), name='add_maintenance_request'),
     path('maintenance/<int:pk>/edit/', views.MaintenanceRequestUpdateView.as_view(), name='edit_maintenance_request'),
+    path('maintenance/<int:pk>/delete/', views.MaintenanceRequestDeleteView.as_view(), name='delete_maintenance_request'),
 ]
