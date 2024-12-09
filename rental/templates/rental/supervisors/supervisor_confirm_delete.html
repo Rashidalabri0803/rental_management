@@ -1,0 +1,13 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}حذف مشرف{% endblock %}
+
+{% block content %}
+<h1>حذف مشرف</h1>
+<p>هل أنت متأكد أنك تريد حذف المشرف "{{ object.user.username }}"؟</p>
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">حذف</button>
+    <a href="{% url 'supervisor_list' %}" class="btn btn-secondary">إلغاء</a>
+</form>
+{% endblock %}

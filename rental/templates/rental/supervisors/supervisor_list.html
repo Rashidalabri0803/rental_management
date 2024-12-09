@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}المشرفون{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">المشرفون</h1>
+  <a href="{% url 'add_supervisor' %}" class="btn btn-primary mb-3">إضافة مشرف جديد</a>
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>اسم المستخدم</th>
+        <th>المبني</th>
+        <th>رقم الهاتف</th>
+        <th>الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for supervisor in supervisors %}
+        <tr>
+          <td>{{ supervisor.user.username }}</td>
+          <td>{{ supervisor.building.name }}</td>
+          <td>{{ supervisor.phone_number }}</td>
+          <td>
+            <a href="{% url 'edit_supervisor' supervisor.pk %}" class="btn btn-warning btn-sm">تعديل</a>
+            <a href="{% url 'delete_supervisor' supervisor.pk %}" class="btn btn-danger btn-sm">حذف</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

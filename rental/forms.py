@@ -1,12 +1,28 @@
 from django import forms
-from .models import Unit, Tenant, Lease, Payment, MaintenanceRequest
+from .models import Building, Unit, Tenant, Supervisor, Lease, Payment, MaintenanceRequest
 from django.core.exceptions import ValidationError
+
+class BuildingForm(forms.ModelForm):
+    class Meta:
+        model = Building
+        fields = ['name', 'location', 'facilities']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placehoder': 'إسم المبني'}),
+            'location': forms.Textarea(attrs={'class': 'form-control', 'placehoder': 'موقع المبني', 'rows': 3}),
+            'facilities': forms.Textarea(attrs={'class': 'form-control', 'placehoder': 'المرافق المتوفرة', 'rows': 3}),
+        }
+        labels = {
+            'name': 'إسم المبني',
+            'location': 'موقع المبني',
+            'facilities': 'المرافق المتوفرة',
+        }
 
 class UnitForm(forms.ModelForm):
     class Meta:
         model = Unit
-        fields = ['unit_number', 'unit_type', 'floor_number', 'size', 'rent_price', 'electricity_meter_number', 'water_meter_number', 'status', 'description']
+        fields = ['building', 'unit_number', 'unit_type', 'floor_number', 'size', 'rent_price', 'electricity_meter_number', 'water_meter_number', 'status', 'description']
         widgets = {
+            'building': forms.Select(attrs={'class': 'form-control'}),
             'unit_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الوحدة'}),
             'unit_type': forms.Select(attrs={'class': 'form-control'}),
             'floor_number': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'رقم الطابق'}),
@@ -18,6 +34,7 @@ class UnitForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'وصف الوحدة', 'rows': 3}),
         }
         labels = {
+            'building': 'المبني',
             'unit_number': 'رقم الوحدة',
             'unit_type': 'نوع الوحدة',
             'floor_number': 'رقم الطابق',
@@ -37,19 +54,33 @@ class TenantForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المستأجر'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهاتف'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'البريد الإلكتروني'}),
-            'national_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهوية الوطنية'}),
+            'national_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم البطاقة المدنية'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'عنوان الإقامة'}),
-            #'commercial_record': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم السجل التجاري (للمستأجرين التجاريين)'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'ملاحظات إضافية', 'rows': 3}),
         }
         labels = {
             'name': 'اسم المستأجر',
             'phone_number': 'رقم الهاتف',
             'email': 'البريد الإلكتروني',
-            'national_id': 'رقم الهوية الوطنية',
+            'national_id': 'رقم البطاقة المدنية',
             'address': 'عنوان الإقامة',
             'commercial_record': 'رقم السجل التجاري',
             'notes': 'ملاحظات إضافية',
+        }
+
+class SupervisorForm(forms.ModelForm):
+    class Meta:
+        model = Supervisor
+        fields = ['user', 'building', 'phone_number']
+        widgets = {
+            'user': forms.Select(attrs={'class': 'form-control'}),
+            'building': forms.Select(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهاتف'}),
+        }
+        labels = {
+            'user': 'اسم المستخدم',
+            'building': 'المبني',
+            'phone_number': 'رقم الهاتف',
         }
 
 class LeaseForm(forms.ModelForm):
@@ -101,7 +132,7 @@ class PaymentForm(forms.ModelForm):
         widgets = {
             'lease': forms.Select(attrs={'class': 'form-control'}),
             'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المبلغ المدفوع'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المبلغ'}),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'ملاحظات إضافية', 'rows': 3}),
         }
@@ -110,28 +141,5 @@ class PaymentForm(forms.ModelForm):
             'date': 'تاريخ الدفع',
             'amount': 'المبلغ المدفوع (ريال عماني)',
             'payment_method': 'طريقة الدفع',
-            'notes': 'ملاحظات إضافية',
-        }
-
-class MaintenanceRequestForm(forms.ModelForm):
-    class Meta:
-        model = MaintenanceRequest
-        fields = ['unit', 'description', 'status', 'start_date', 'completion_date', 'notes']
-        widgets = {
-            'unit': forms.Select(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'وصف المشكلة', 'rows': 3}),
-            #'request_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'status': forms.Select(attrs={'class': 'form-control'}),
-            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'completion_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'ملاحظات إضافية', 'rows': 3}),
-        }
-        labels = {
-            'unit': 'الوحدة',
-            'description': 'وصف المشكلة',
-            #'request_date': 'تاريخ الطلب',
-            'status': 'حالة الطلب',
-            'start_date': 'تاريخ بدء الصيانة',
-            'completion_date': 'تاريخ إنهاء الصيانة',
             'notes': 'ملاحظات إضافية',
         }

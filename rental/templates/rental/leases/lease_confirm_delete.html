@@ -2,7 +2,7 @@
 {% block title %}حذف عقد إيجار{% endblock %}
 {% block content %}
 <h1>حذف عقد إيجار</h1>
-<p>هل أنت متأكد من أنك تريد حذف العقد "{{ lease.contract_number }}"؟</p>
+<p>هل أنت متأكد من أنك تريد حذف العقد "{{ object.contract_number }}"؟</p>
 <form method="POST">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">نعم ، حذف</button>

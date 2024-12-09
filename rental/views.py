@@ -2,8 +2,44 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib import messages
-from .models import Unit, Tenant, Lease, Payment, MaintenanceRequest
-from .forms import UnitForm, TenantForm, LeaseForm, PaymentForm, MaintenanceRequestForm
+from .models import Building, Unit, Tenant, Supervisor, Lease, Payment, MaintenanceRequest
+from .forms import BuildingForm, UnitForm, TenantForm, SupervisorForm, LeaseForm, PaymentForm, MaintenanceRequestForm
+
+class BuildingListView(ListView):
+    model = Building
+    template_name = "rental/buildings/building_list.html"
+    context_object_name = "buildings"
+    ordering = ["name"]
+    paginate_by = 10
+
+class BuildingCrateView(CreateView):
+    model = Building
+    form_class = BuildingForm
+    template_name = "rental/buildings/building_form.html"
+    success_url = reverse_lazy("building_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "تمت إضافة المبنى بنجاح")
+        return super().form_valid(form)
+
+class BuildingUpdateView(UpdateView):
+    model = Building
+    form_class = BuildingForm
+    template_name = "rental/buildings/building_form.html"
+    success_url = reverse_lazy("building_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم تعديل بيانات المبنى بنجاح")
+        return super().form_valid(form)
+
+class BuildingDeleteView(DeleteView):
+    model = Building
+    template_name = "rental/buildings/building_confirm_delete.html"
+    success_url = reverse_lazy("building_list")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "تم حذف المبنى بنجاح")
+        return super().delete(request, *args, **kwargs)
 
 class UnitListView(ListView):
     model = Unit
@@ -12,11 +48,10 @@ class UnitListView(ListView):
     ordering = ['unit_number']
     paginate_by = 10
 
-class UnitDetailView(DetailView):
-    model = Unit
-    template_name = "rental/units/unit_detail.html"
-    context_object_name = "unit"
-
+    def get_queryset(self):
+        supervisor = get_object_or_404(Supervisor, user=self.request.user)
+        return Unit.objects.filter(building=supervisor.building)
+        
 class UnitCreateView(CreateView):
     model = Unit
     form_class = UnitForm
@@ -36,7 +71,7 @@ class UnitUpdateView(UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "تم تعديل بيانات الوحدة بنجاح.")
         return super().form_valid(form)
-
+        
 class UnitDeleteView(DeleteView):
     model = Unit
     template_name = "rental/units/unit_confirm_delete.html"
@@ -82,6 +117,42 @@ class TenantDeleteView(DeleteView):
         messages.success(request, "تم حذف المستأجر بنجاح.")
         return super().delete(request, *args, **kwargs)
 
+class SupervisorListView(ListView):
+    model = Supervisor
+    template_name = "rental/supervisors/supervisor_list.html"
+    context_object_name = "supervisors"
+    ordering = ['user__username']
+    paginate_by = 10
+
+class SupervisorCreateView(CreateView):
+    model = Supervisor
+    form_class = SupervisorForm
+    template_name = "rental/supervisors/supervisor_form.html"
+    success_url = reverse_lazy("supervisor_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "تمت إضافة المشرف بنجاح.")
+        return super().form_valid(form)
+
+class SupervisorUpdateView(UpdateView):
+    model = Supervisor
+    form_class = SupervisorForm
+    template_name = "rental/supervisors/supervisor_form.html"
+    success_url = reverse_lazy("supervisor_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم تعديل بيانات المشرف بنجاح.")
+        return super().form_valid(form)
+
+class SupervisorDeleteView(DeleteView):
+    model = Supervisor
+    template_name = "rental/supervisors/supervisor_confirm_delete.html"
+    success_url = reverse_lazy("supervisor_list")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "تم حذف المشرف بنجاح.")
+        return super().delete(request, *args, **kwargs)
+
 class LeaseListView(ListView):
     model = Lease
     template_name = "rental/leases/lease_list.html"
@@ -103,24 +174,6 @@ class LeaseCreateView(CreateView):
         messages.error(self.request, "حدث خطأ أثناء إنشاء العقد. يرجى التحقق من البيانات المدخلة")
         return super().form_invalid(form)
         
-class LeaseUpdateView(UpdateView):
-    model = Lease
-    form_class = LeaseForm
-    template_name = "rental/leases/lease_form.html"
-    success_url = reverse_lazy("lease_list")
-
-    def form_valid(self, form):
-        messages.success(self.request, "تم تعديل عقد الإيجار بنجاح.")
-        return super().form_valid(form)
-
-class LeaseDeleteView(DeleteView):
-    model = Lease
-    template_name = "rental/leases/lease_confirm_delete.html"
-    success_url = reverse_lazy("lease_list")
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "تم حذف عقد الإيجار بنجاح.")
-        return super().delete(request, *args, **kwargs)
 
 class PaymentListView(ListView):
     model = Payment

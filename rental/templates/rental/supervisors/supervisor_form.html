@@ -1,0 +1,15 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}تعديل مشرف{% endblock %}
+
+{% block content %}
+<h1>تعديل مشرف</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">تحديث</button>
+    <a href="{% url 'supervisor_list' %}" class="btn btn-secondary">إلغاء</a>
+</form>
+
+{% endblock %}

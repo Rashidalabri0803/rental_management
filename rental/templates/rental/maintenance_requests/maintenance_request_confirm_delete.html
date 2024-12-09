@@ -1,0 +1,13 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}حذف طلب صيانة{% endblock %}
+
+{% block content %}
+<h1>حذف طلب صيانة</h1>
+<p>هل أنت متأكد أنك تريد حذف طلب الصيانة للوحدة "{{ object.unit.unit_number }}"؟</p>
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">حذف</button>
+    <a href="{% url 'maintenance_request_list' %}" class="btn btn-secondary">إلغاء</a>
+</form>
+{% endblock %}

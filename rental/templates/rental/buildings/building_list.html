@@ -1,0 +1,31 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}المباني{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">المباني</h1>
+  <a href="{% url 'add_building' %}" class="btn btn-primary mb-3">إضافة مبني جديد</a>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr class="table-dark">
+        <th>اسم المبني</th>
+        <th>الموقع</th>
+        <th>إجمالي الوحدات</th>
+        <th>الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for building in buildings %}
+        <tr>
+          <td>{{ building.name }}</td>
+          <td>{{ building.location }}</td>
+          <td>{{ building.units.count }}</td>
+          <td>
+            <a href="{% url 'edit_building' building.pk %}" class="btn btn-warning">تعديل</a>
+            <a href="{% url 'delete_building' building.pk %}" class="btn btn-danger">حذف</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

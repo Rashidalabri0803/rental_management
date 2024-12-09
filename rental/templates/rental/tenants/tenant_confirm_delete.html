@@ -4,10 +4,10 @@
 
 {% block content %}
     <h1>حذف مستأجر</h1>
-    <p>هل أنت متأكد من أنك تريد حذف المستأجر "{{ tenant.name }}"؟</p>
+    <p>هل أنت متأكد من أنك تريد حذف المستأجر "{{ object.name }}"؟</p>
     <form method="POST">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">حذف</button>
+        <button type="submit" class="btn btn-danger">نعم ،حذف</button>
         <a href="{% url 'tenant_list' %}" class="btn btn-secondary">إلغاء</a>
     </form>
 {% endblock %}

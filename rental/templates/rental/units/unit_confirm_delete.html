@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>حذف وحدة</h1>
-<p>هل أنت متأكد من أنك تريد حذف الوحدة "{{ unit.unit_number }}"؟</p>
+<p>هل أنت متأكد من أنك تريد حذف الوحدة "{{ object.unit_number }}"؟</p>
 <form method="POST">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">نعم ، حذف</button>
