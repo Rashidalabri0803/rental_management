@@ -8,7 +8,7 @@
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-success">حفظ</button>
-    <a href="{% url 'rental:building_list' %}" class="btn btn-secondary">إلغاء</a>
+    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>حفظ</button>
+    <a href="{% url 'rental:building_list' %}" class="btn btn-secondary"><i class="fas fa-times"></i>إلغاء</a>
   </form>
 {% endblock %}
