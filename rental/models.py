@@ -1,12 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import AbstractUser
+
+TENANT_TYPE_CHOICES = [
+  ('Individual', "شخصي"),
+  ('Company', "شركة"),
+]
 
 UNIT_TYPE_CHOICES = [
   ('office', "مكتب"),
   ('apartment', "شقة"),
   ('shop', "محل تجاري"),
 ]
+
 UNIT_STATUS_CHOICES = [
   ('available', "متاحة"),
   ('rented', "مؤجرة"),
@@ -25,6 +32,25 @@ MAINTENANCE_STATUS_CHOICES = [
   ('completed', "مكتملة"),
 ]
 
+class User(AbstractUser):
+  phone_number = models.CharField(
+    max_length=15, 
+    unique=True, 
+    verbose_name="رقم الهاتف",
+    help_text="يجب أن يكون رقم الهاتف فريداً",
+  )
+  is_tenant = models.BooleanField(
+    default=False, 
+    verbose_name="هل هو مستأجر؟",
+  )
+  is_supervisor = models.BooleanField(
+    default=False, 
+    verbose_name="هل هو مشرف؟",
+  )
+
+  def __str__(self):
+    return self.username
+    
 class Building(models.Model):
   name = models.CharField(
     max_length=100,
@@ -34,10 +60,8 @@ class Building(models.Model):
   location = models.TextField(
     verbose_name=_("موقع المبني"),
   )
-  facilities = models.TextField(
-    blank=True,
-    null=True,
-    verbose_name=_("المرافق المتوفرة"),
+  total_units = models.PositiveIntegerField(
+    verbose_name="إجمالي الوحدات",
   )
   created_at = models.DateTimeField(
     auto_now_add=True,
@@ -48,54 +72,67 @@ class Building(models.Model):
     verbose_name=_("تاريخ التحديث"),
   )
 
+  class Meta:
+    verbose_name = _("مبنى")
+    verbose_name_plural = _("المباني")
+
   def __str__(self):
     return self.name
 
+class Supervisor(models.Model):
+  """يمثل المشرفين"""
+  user = models.OneToOneField(
+    User,
+    on_delete=models.CASCADE,
+    verbose_name="حساب المشرف"
+  )
+  building = models.ForeignKey(
+    Building,
+    on_delete=models.CASCADE,
+    related_name="supervisors",
+    verbose_name="المبني"
+  )
+  permissions = models.JSONField(
+    default=dict,
+    verbose_name="الصلاحيات",
+    help_text="حدد صلاحيات المشرف"
+  )
+
+  class Meta:
+      verbose_name = "مشرف"
+      verbose_name_plural = "المشرفون"
+
+  def __str__(self):
+      return f"{self.user.username} - {self.building.name}"
+    
 class Unit(models.Model): 
     """يمثل الوحدات السكنية أو التجارية في المبني"""
     building = models.ForeignKey(
       Building,
       on_delete=models.CASCADE,
       related_name="units",
-      verbose_name=_("المبني"),
+      verbose_name="المبني",
     )
     unit_number = models.CharField(
       max_length=10,
       unique=True,
       verbose_name="رقم الوحدة"
     )
-    unit_type = models.CharField(
-      max_length=10,
-      choices=UNIT_TYPE_CHOICES,
-      verbose_name="نوع الوحدة"
+    size = models.FloatField(
+      verbose_name="المساحة (متر مربع)"
     )
     floor_number = models.PositiveIntegerField(
       verbose_name="رقم الطابق"
     )
-    size = models.FloatField(
-      verbose_name="المساحة بالمتر المربع"
-    )
     rent_price = models.DecimalField(
       max_digits=10,
       decimal_places=2,
-      verbose_name="سعر الإيجار الشهري (ريال عماني)"
-    )
-    electricity_meter_number = models.CharField(
-      max_length=50,
-      blank=True,
-      null=True,
-      verbose_name="رقم عداد الكهرباء"
-    )
-    water_meter_number = models.CharField(
-      max_length=50,
-      blank=True,
-      null=True,
-      verbose_name="رقم عداد المياه"
+      verbose_name="سعر الإيجار (ريال عماني)"
     )
     status = models.CharField(
       max_length=15,
       choices=UNIT_STATUS_CHOICES,
-      default='available',
+      default="available",
       verbose_name="حالة الوحدة"
     )
     description = models.TextField(
@@ -115,27 +152,24 @@ class Unit(models.Model):
 
 class Tenant(models.Model):
     """يمثل المستأجرين"""
-    name = models.CharField(
-      max_length=100,
-      verbose_name="اسم المستأجر"
+    user = models.OneToOneField(
+      User,
+      on_delete=models.CASCADE,
+      verbose_name="حساب المستخدم"
     )
-    phone_number = models.CharField(
-      max_length=15,
-      verbose_name="رقم الهاتف"
-    )
-    email = models.EmailField(
-      blank=True,
-      null=True,
-      verbose_name="البريد الإلكتروني"
+    tenant_type = models.CharField(
+      max_length=10,
+      choices=TENANT_TYPE_CHOICES,
+      verbose_name="نوع المستأجر"
     )
     national_id = models.CharField(
-      max_length=15,
+      max_length=20,
       unique=True,
-      verbose_name="رقم البطاقة المدنية"
+      verbose_name="رقم البطاقة المدنية / السجل التجاري"
     )
     address = models.CharField(
       max_length=255,
-      verbose_name="عنوان الإقامة"
+      verbose_name="عنوان الإقامة أو الشركة"
     )
     notes = models.TextField(
       blank=True,
@@ -146,36 +180,9 @@ class Tenant(models.Model):
     class Meta:
         verbose_name = "مستأجر"
         verbose_name_plural = "المستأجرون"
-        ordering = ['name']
 
     def __str__(self):
-        return str(self.name)
-      
-class Supervisor(models.Model):
-    """يمثل المشرفين"""
-    user = models.OneToOneField(
-      User,
-      on_delete=models.CASCADE,
-      related_name="supervisor",
-      verbose_name="حساب المستخدم"
-    )
-    building = models.ForeignKey(
-      Building,
-      on_delete=models.CASCADE,
-      related_name="supervisors",
-      verbose_name="المبني"
-    )
-    phone_number = models.CharField(
-      max_length=15,
-      verbose_name="رقم الهاتف"
-    )
-
-    class Meta:
-        verbose_name = "مشرف"
-        verbose_name_plural = "مشروفون"
-
-    def __str__(self):
-        return f"{self.user.username} - {self.building.name}"
+        return str(self.user.username)
       
 class Lease(models.Model):
     """يمثل عقود الإيجار"""
@@ -200,9 +207,6 @@ class Lease(models.Model):
     end_date = models.DateField(
       verbose_name="تاريخ نهاية العقد"
     )
-    duration_months = models.PositiveIntegerField(
-      verbose_name="مدة العقد (بالشهور)"
-    )
     monthly_rent = models.DecimalField(
       max_digits=10,
       decimal_places=2,
@@ -212,12 +216,6 @@ class Lease(models.Model):
       max_digits=10,
       decimal_places=2,
       verbose_name="المقدم (ريال عماني)"
-    )
-    contract_file = models.FileField(
-      upload_to="contracts",
-      blank=True,
-      null=True,
-      verbose_name="ملف العقد"
     )
     is_active = models.BooleanField(
       default=True,
@@ -285,16 +283,6 @@ class MaintenanceRequest(models.Model):
       choices=MAINTENANCE_STATUS_CHOICES,
       default='pending',
       verbose_name="حالة الطلب"
-    )
-    start_date = models.DateField(
-      blank=True,
-      null=True,
-      verbose_name="تاريخ بدء الإصلاح"
-    )
-    completion_date = models.DateField(
-      blank=True,
-      null=True,
-      verbose_name="تاريخ إنهاء الصيانة"
     )
     notes = models.TextField(
       blank=True,
