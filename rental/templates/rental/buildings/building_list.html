@@ -4,7 +4,7 @@
 
 {% block content %}
   <h1 class="mb-4">المباني</h1>
-  <a href="{% url 'rental:add_building' %}" class="btn btn-primary mb-3">إضافة مبني جديد</a>
+  <a href="{% url 'rental:add_building' %}" class="btn btn-primary mb-3"><i class="fas fa-building"></i>إضافة مبني جديد</a>
   <table class="table table-bordered table-striped">
     <thead>
       <tr class="table-dark">
@@ -21,8 +21,8 @@
           <td>{{ building.location }}</td>
           <td>{{ building.units.count }}</td>
           <td>
-            <a href="{% url 'rental:edit_building' building.pk %}" class="btn btn-warning">تعديل</a>
-            <a href="{% url 'rental:delete_building' building.pk %}" class="btn btn-danger">حذف</a>
+            <a href="{% url 'rental:edit_building' building.pk %}" class="btn btn-warning"><i class="fas fa-edit"></i>تعديل</a>
+            <a href="{% url 'rental:delete_building' building.pk %}" class="btn btn-danger"><i class="fas fa-trash"></i>حذف</a>
           </td>
         </tr>
       {% endfor %}

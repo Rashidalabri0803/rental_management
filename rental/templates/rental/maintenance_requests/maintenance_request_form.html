@@ -1,11 +1,11 @@
 {% extends 'rental/base.html' %}
-{% block title %}إضافة/تعديل طلب صيانة{% endblock %}
+{% block title %}تعديل طلب صيانة{% endblock %}
 {% block content %}
-<h1>إضافة/تعديل طلب صيانة</h1>
+<h1>تعديل طلب صيانة</h1>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-success">حفظ</button>
-    <a href="{% url 'rental:maintenance_request_list' %}" class="btn btn-secondary">إلغاء</a>
+    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>حفظ</button>
+    <a href="{% url 'rental:maintenance_request_list' %}" class="btn btn-secondary"><i class="fas fa-times"></i>إلغاء</a>
 </form>
 {% endblock %}

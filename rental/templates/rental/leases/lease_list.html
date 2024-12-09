@@ -5,7 +5,7 @@
 {% block content %}
 <h1 class="mb-4">عقود الإيجار</h1>
 
-<a href="{% url 'rental:add_lease' %}" class="btn btn-primary mb-3">إضافة عقد إيجار جديد</a>
+<a href="{% url 'rental:add_lease' %}" class="btn btn-primary mb-3"><i class="fas fa-file-contract"></i>إضافة عقد إيجار جديد</a>
 
 <table class="table table-bordered table-striped">
   <thead class="table-dark">
@@ -29,8 +29,8 @@
       <td>{{ lease.end_date }}</td>
       <td>{{ lease.monthly_rent }} ر.ع</td>
       <td>
-        <a href="{% url 'rental:edit_lease' lease.pk %}" class="btn btn-warning btn-sm">تعديل</a>
-        <a href="{% url 'rental:delete_lease' lease.pk %}" class="btn btn-danger btn-sm">حذف</a>
+        <a href="{% url 'rental:edit_lease' lease.pk %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i>تعديل</a>
+        <a href="{% url 'rental:delete_lease' lease.pk %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>حذف</a>
       </td>
     </tr>
     {% endfor %}

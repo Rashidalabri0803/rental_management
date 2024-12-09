@@ -2,6 +2,7 @@
 {% block title %}المدفوعات{% endblock %}
 {% block content %}
 <h1 class="mb-4">المدفوعات</h1>
+<a href="{% url 'rental:add_payment' %}" class="btn btn-primary mb-3"><i class="fas fa-money-bill-wave"></i>إضافة مدفوعة جديدة</a>
 <table class="table table-bordered table-striped">
   <thead class="table-dark">
     <tr>
@@ -20,7 +21,7 @@
       <td>{{ payment.amount }}</td>
       <td>{{ payment.get_payment_method_display }}</td>
       <td>
-        <a href="{% url 'rental:edit_payment' payment.pk %}" class="btn btn-warning btn-sm">تعديل</a>
+        <a href="{% url 'rental:edit_payment' payment.pk %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i>تعديل</a>
       </td>
     </tr>
     {% endfor %}
