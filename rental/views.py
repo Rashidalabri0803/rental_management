@@ -45,12 +45,8 @@ class UnitListView(ListView):
     model = Unit
     template_name = "rental/units/unit_list.html"
     context_object_name = "units"
-    ordering = ['unit_number']
+    ordering = ["unit_number"]
     paginate_by = 10
-
-    def get_queryset(self):
-        supervisor = get_object_or_404(Supervisor, user=self.request.user)
-        return Unit.objects.filter(building=supervisor.building)
         
 class UnitCreateView(CreateView):
     model = Unit
