@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
-from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
+from django.utils.translation import gettext_lazy as _
 
 TENANT_TYPE_CHOICES = [
   ('Individual', "شخصي"),
@@ -26,12 +25,6 @@ PAYMENT_METHOD_CHOICES = [
   ('maintenance', "بطاقة ائتمان"),
 ]
 
-MAINTENANCE_STATUS_CHOICES = [
-  ('pending', "قيد الانتظار"),
-  ('in_progress', "قيد التنفيذ"),
-  ('completed', "مكتملة"),
-]
-
 class User(AbstractUser):
   phone_number = models.CharField(
     max_length=15, 
@@ -53,52 +46,53 @@ class User(AbstractUser):
     verbose_name="هل هو مشرف؟",
   )
 
-  def __str__(self):
+  def __str_(self):
     return self.username
     
 class Building(models.Model):
   name = models.CharField(
     max_length=100,
     unique=True,
-    verbose_name=_("اسم المبني"),
+    verbose_name="اسم المبني",
   )
   location = models.TextField(
-    verbose_name=_("موقع المبني"),
+    verbose_name="موقع المبني",
   )
   total_units = models.PositiveIntegerField(
     verbose_name="إجمالي الوحدات",
   )
   created_at = models.DateTimeField(
     auto_now_add=True,
-    verbose_name=_("تاريخ الإضافة"),
+    verbose_name="تاريخ الإضافة",
   )
   updated_at = models.DateTimeField(
     auto_now=True,
-    verbose_name=_("تاريخ التحديث"),
+    verbose_name="تاريخ التحديث",
   )
 
   class Meta:
-    verbose_name = _("مبنى")
-    verbose_name_plural = _("المباني")
+    verbose_name = "مبنى"
+    verbose_name_plural = "المباني"
 
-  def __str__(self):
+  def __str_(self):
     return self.name
 
 class SupervisorPermission(models.Model):
   name = models.CharField(
     max_length=50,
     unique=True,
-    verbose_name=_("اسم الصلاحية"),
+    verbose_name="اسم الصلاحية",
   )
   description = models.TextField(
-    verbose_name=_("وصف الصلاحية"),
+    verbose_name="وصف الصلاحية",
+    blank=True,
   )
 
   class Meta:
     verbose_name ="صلاحية المشرف"
     verbose_name_plural ="صلاحيات المشرفين"
 
-  def __str__(self):
+  def __str_(self):
     return self.name
 
 class Supervisor(models.Model):
@@ -124,26 +118,26 @@ class Supervisor(models.Model):
       verbose_name = "مشرف"
       verbose_name_plural = "المشرفون"
 
-  def __str__(self):
+  def __str_(self):
       return f"{self.user.username} - {self.building.name}"
 
 class UnitType(models.Model):
   name = models.CharField(
     max_length=50,
     unique=True,
-    verbose_name=_("نوع الوحدة"),
+    verbose_name="نوع الوحدة",
   )
   description = models.TextField(
     blank=True,
     null=True,
-    verbose_name=_("وصف"),
+    verbose_name="وصف",
   )
 
   class Meta:
     verbose_name = "نوع الوحدة"
     verbose_name_plural = "أنواع الوحدات"
 
-  def __str__(self):
+  def __str_(self):
     return self.name
     
 class Unit(models.Model): 
@@ -194,7 +188,7 @@ class Unit(models.Model):
         verbose_name_plural = "الوحدات"
         ordering = ['unit_number']
 
-    def __str__(self):
+    def __str_(self):
       return f"وحدة {self.unit_number} - {self.building.name}"
 
 
@@ -235,8 +229,8 @@ class Tenant(models.Model):
         verbose_name = "مستأجر"
         verbose_name_plural = "المستأجرون"
 
-    def __str__(self):
-        return str(self.user.username)
+    def __str_(self):
+        return self.user.username
       
 class Lease(models.Model):
     """يمثل عقود الإيجار"""
@@ -281,7 +275,7 @@ class Lease(models.Model):
         verbose_name_plural = "عقود الإيجار"
         ordering = ['start_date']
 
-    def __str__(self):
+    def __str_(self):
         return f"عقد {self.contract_number} - {self.unit.unit_number}"
 
 class Payment(models.Model):
@@ -315,7 +309,7 @@ class Payment(models.Model):
         verbose_name_plural = "الدفعات"
         ordering = ['-date']
 
-    def __str__(self):
+    def __str_(self):
         return f"دفعة {self.amount} للعقد {self.lease.contract_number}"
 
 class MaintenanceRequest(models.Model):
@@ -334,7 +328,11 @@ class MaintenanceRequest(models.Model):
     )
     status = models.CharField(
       max_length=20,
-      choices=MAINTENANCE_STATUS_CHOICES,
+      choices=[
+        ('pending', 'قيد الانتظار'),
+        ('in_progress', 'قيد التنفيذ'),
+        ('completed', 'مكتملة'),
+      ],
       default='pending',
       verbose_name="حالة الطلب"
     )
@@ -349,5 +347,164 @@ class MaintenanceRequest(models.Model):
         verbose_name_plural = "طلبات الصيانة"
         ordering = ['-request_date']
 
-    def __str__(self):
+    def __str_(self):
         return f"طلب صيانة للوحدة {self.unit.unit_number} - {self.get_status_display()}"
+
+class Invoice(models.Model):
+  lease = models.ForeignKey(
+    Lease,
+    on_delete=models.CASCADE,
+    related_name="invoices",
+    verbose_name="عقد الإيجار"
+  )
+  invoice_number = models.CharField(
+    max_length=20,
+    unique=True,
+    verbose_name="رقم الفاتورة"
+  )
+  issue_date = models.DateField(
+    verbose_name="تاريخ الإصدار"
+  )
+  due_date = models.DateField(
+    verbose_name="تاريخ الاستحقاق"
+  )
+  total_amount = models.DecimalField(
+    max_digits=10,
+    decimal_places=2,
+    verbose_name="إجمالي المبلغ (ريال عماني)"
+  )
+  vat = models.DecimalField(
+    max_digits=10,
+    decimal_places=2,
+    default=0.0,
+    verbose_name="ضريبة القيمة المضافة (%)"
+  )
+  paid = models.BooleanField(
+    default=False,
+    verbose_name="مدفوعة"
+  )
+
+  class Meta:
+      verbose_name = "فاتورة"
+      verbose_name_plural = "الفواتير"
+      ordering = ['-issue_date']
+
+  def __str_(self):
+      return f"فاتورة {self.invoice_number} - {self.lease.contract_number}"
+
+class ActivityLog(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="المستخدم"
+    )
+    action = models.CharField(
+        max_length=255,
+        verbose_name="الإجراء"
+    )
+    timestamp = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="التاريخ والوقت"
+    )
+    details = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="تفاصيل الإجراء"
+    )
+
+    class Meta:
+        verbose_name = "سجل النشاط"
+        verbose_name_plural = "سجلات الأنشطة"
+        ordering = ['-timestamp']
+
+    def __str_(self):
+        return f"{self.user.username if self.user else 'نظام'} - {self.action}"
+
+class SupportMessage(models.Model):
+    """يمثل رسائل الدعم"""
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="sent_messages",
+        verbose_name="المرسل"
+    )
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="received_messages",
+        verbose_name="المستلم"
+    )
+    subject = models.CharField(
+        max_length=255,
+        verbose_name="الموضوع"
+    )
+    message = models.TextField(
+        verbose_name="الرسالة"
+    )
+    sent_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="تاريخ الإرسال"
+    )
+    read = models.BooleanField(
+        default=False,
+        verbose_name="مقروءة"
+    )
+
+    class Meta:
+        verbose_name = "رسالة الدعم"
+        verbose_name_plural = "رسائل الدعم"
+        ordering = ['-sent_at']
+
+    def __str_(self):
+        return f"رسالة من {self.sender.username} - {self.recipient.username}"
+
+class Notifiction(models.Model):
+    """يمثل الإشعارات"""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        verbose_name="المستخدم"
+    )
+    message = models.TextField(
+        verbose_name="نص التنبيه"
+    )
+    read = models.BooleanField(
+        default=False,
+        verbose_name="مقروءة"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="تاريخ الإنشاء"
+    )
+
+    class Meta:
+        verbose_name = "تنبيه"
+        verbose_name_plural = "التنبيهات"
+        ordering = ['-created_at']
+
+    def __str_(self):
+        return f"تنبيه من {self.id} للمستخدم {self.user.username}"
+
+class MaintenanceReview(models.Model):
+    maintenance_request = models.OneToOneField(
+        MaintenanceRequest,
+        on_delete=models.CASCADE,
+        verbose_name="طلب الصيانة"
+    )
+    rating = models.PositiveSmallIntegerField(
+        verbose_name=" (من 1 إلى 5) التقييم"
+    )
+    feedback = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="الملاحظات"
+    )
+
+    class Meta:
+        verbose_name = "تقييم الصيانة"
+        verbose_name_plural = "تقييمات الصيانة"
+
+    def __str_(self):
+        return f"تقييم {self.rating} - طلب {self.maintenance_request.id}"
