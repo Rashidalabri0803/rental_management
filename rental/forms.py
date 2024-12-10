@@ -1,16 +1,15 @@
 from django import forms
-from .models import User, Building, Supervisor, Unit, Tenant, Lease, Payment, MaintenanceRequest
+from .models import User, Building, Supervisor, SupervisorPermission, Unit, UnitType, Tenant, Lease, Payment, MaintenanceRequest
 
-class UserLoginForm(forms.Form):
-    phone_number = forms.CharField(
-        max_length=15,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهاتف'}),
-        label='رقم الهاتف', 
-    )
-    password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'كلمة المرور'}),
-        label='كلمة المرور', 
-    )
+class UserForm(forms.Form):
+    class Meta:
+        model = User
+        fields = ['username', 'phone_number', 'email', 'is_supervisor', 'is_tenant', 'is_staff']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المستخدم'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهاتف'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'البريد الإلكتروني'}),
+        }
 
 class BuildingForm(forms.ModelForm):
     class Meta:
@@ -22,14 +21,48 @@ class BuildingForm(forms.ModelForm):
             'total_units': forms.NumberInput(attrs={'class': 'form-control', 'placehoder': 'إجمالي الوحدات'}),
         }
 
+class SupervisorPermissionForm(forms.ModelForm):
+    class Meta:
+        model = SupervisorPermission
+        fields = ['name', 'description']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placehoder': 'اسم الصلاحية'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placehoder': 'وصف الصلاحية', 'rows': 3}),
+        }
+
+class UnitTypeForm(forms.ModelForm):
+    class Meta:
+        model = UnitType
+        fields = ['name', 'description']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placehoder': 'نوع الوحدة'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placehoder': 'وصف النوع', 'rows': 3}),
+        }
+
+class UnitForm(forms.ModelForm):
+    class Meta:
+        model = Unit
+        fields = ['unit_number', 'building', 'unit_type', 'floor_number', 'size', 'rent_price', 'status', 'description']
+        widgets = {
+            'unit_number': forms.TextInput(attrs={'class': 'form-control', 'placehoder': 'رقم الوحدة'}),
+            'building': forms.Select(attrs={'class': 'form-control'}),
+            'unit_type': forms.Select(attrs={'class': 'form-control'}),
+            'floor_number': forms.NumberInput(attrs={'class': 'form-control', 'placehoder': 'رقم الطابق'}),
+            'size': forms.NumberInput(attrs={'class': 'form-control', 'placehoder': 'المساحة'}),
+            'rent_price': forms.NumberInput(attrs={'class': 'form-control', 'placehoder': 'سعر الإيجار'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placehoder': 'وصف الوحدة', 'rows': 3}),
+        }
+
 class TenantForm(forms.ModelForm):
     class Meta:
         model = Tenant
-        fields = ['user', 'tenant_type', 'national_id', 'address', 'notes']
+        fields = ['user', 'tenant_type', 'national_id', 'company_name', 'address', 'notes']
         widgets = {
             'user': forms.Select(attrs={'class': 'form-control'}),
             'tenant_type': forms.Select(attrs={'class': 'form-control'}),
             'national_id': forms.TextInput(attrs={'class': 'form-control', 'placehoder': 'رقم البطاقة المدنية'}),
+            'company_name': forms.TextInput(attrs={'class': 'form-control', 'placehoder': 'اسم الشركة'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'placehoder': 'عنوان المستأجر'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'placehoder': 'ملاحظات إضافية', 'rows': 3}),
         }

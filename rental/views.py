@@ -2,43 +2,66 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import User, Building, Unit, Tenant, Lease, Payment, MaintenanceRequest
-from .forms import UserLoginForm, TenantForm, LeaseForm
+from .models import User, Building, Unit, Tenant, Lease, SupervisorPermission, UnitType, Payment, MaintenanceRequest
+from .forms import BuildingForm, UnitForm, TenantForm, LeaseForm, SupervisorPermissionForm, UnitTypeForm
 
-def login_view(request):
-    if request.method == 'POST':
-        form = UserLoginForm(request.POST)
-        if form.is_valid():
-            phone_number = form.cleaned_data['phone_number']
-            password = form.cleaned_data['password']
-            user = authenticate(phone_number=phone_number, password=password)
-            if user:
-                login(request, user)
-                if user.is_superuser:
-                    return redirect('rental:supervisor_dashboard')
-                elif user.is_tenant:
-                    return redirect('rental:tenant_dashboard')
-            else:
-                messages.error(request, "بيانات تسجيل الدخول غير صحيحة")
-    else:
-        form = UserLoginForm()
-    return render(request, 'rental/login.html', {'form': form})
+class SupervisorPermissionListView(ListView):
+    model = SupervisorPermission
+    template_name = 'rental/supervisor_permissions/permissions_list.html'
+    context_object_name = 'permissions'
 
-def logout_view(request):
-    logout(request)
-    return redirect('rental:login')
+class SupervisorPermissionCreatView(CreateView):
+    model = SupervisorPermission
+    form_class = SupervisorPermissionForm
+    template_name = 'rental/supervisor_permissions/permissions_form.html'
+    success_url = '/supervisor/permissions/'
 
-def supervisor_dashboard(request):
-    building = Building.objects.first()
-    units = building.units.all()
-    tenants = Tenant.objects.all()
-    return render(request, 'rental/supervisor_dashboard.html', {
-        'building': building, 
-        'units': units, 
-        'tenants': tenants,
-    })
+class SupervisorPermissionUpdateView(UpdateView):
+    model = SupervisorPermission
+    form_class = SupervisorPermissionForm
+    template_name = 'rental/supervisor_permissions/permissions_form.html'
+    success_url = '/supervisor/permissions/'
 
-def tenant_dashboard(request):
-    tenant = Tenant.objects.get(user=request.user)
-    leases = Lease.objects.filter(tenant=tenant)
-    return render(request, 'rental/tenant_dashboard.html', {'tenant': tenant, 'leases': leases})
+class SupervisorPermissionDeleteView(DeleteView):
+    model = SupervisorPermission
+    template_name = 'rental/supervisor_permissions/permissions_confirm_delete.html'
+    success_url = '/supervisor/permissions/'
+
+class UnitTypeListView(ListView):
+    model = UnitType
+    template_name = 'rental/unit_types/unit_types_list.html'
+    context_object_name = 'unit_types'
+
+class UnitTypeCreatView(CreateView):
+    model = UnitType
+    form_class = UnitTypeForm
+    template_name = 'rental/unit_types/unit_types_form.html'
+    success_url = '/unit-types/'
+
+class UnitTypeUpdateView(UpdateView):
+    model = UnitType
+    form_class = UnitTypeForm
+    template_name = 'rental/unit_types/unit_types_form.html'
+    success_url = '/unit-types/'
+
+class LeasetListView(ListView):
+    model = Lease
+    template_name = 'rental/leases/leases_list.html'
+    context_object_name = 'leases'
+
+class LeaseCreatView(CreateView):
+    model = Lease
+    form_class = LeaseForm
+    template_name = 'rental/leases/leases_form.html'
+    success_url = '/leases/'
+
+class LeaseUpdateView(UpdateView):
+    model = Lease
+    form_class = LeaseForm
+    template_name = 'rental/leases/leases_form.html'
+    success_url = '/leases/'
+
+class LeaseDeleteView(DeleteView):
+    model = Lease
+    template_name = 'rental/leases/leases_confirm_delete.html'
+    success_url = '/leases/'

@@ -8,16 +8,16 @@ TENANT_TYPE_CHOICES = [
   ('Company', "شركة"),
 ]
 
-UNIT_TYPE_CHOICES = [
-  ('office', "مكتب"),
-  ('apartment', "شقة"),
-  ('shop', "محل تجاري"),
-]
-
 UNIT_STATUS_CHOICES = [
   ('available', "متاحة"),
   ('rented', "مؤجرة"),
   ('maintenance', "تحت الصيانة"),
+]
+
+LEASE_STATUS_CHOICES = [
+  ('active', "نشط"),
+  ('expired', "منتهي"),
+  ('suspended', "معلق"),
 ]
 
 PAYMENT_METHOD_CHOICES = [
@@ -38,6 +38,11 @@ class User(AbstractUser):
     unique=True, 
     verbose_name="رقم الهاتف",
     help_text="يجب أن يكون رقم الهاتف فريداً",
+  )
+  email = models.EmailField(
+    unique=True,
+    verbose_name="البريد الإلكتروني",
+    help_text="يجب أن يكون البريد الإلكتروني فريداً",
   )
   is_tenant = models.BooleanField(
     default=False, 
@@ -79,6 +84,23 @@ class Building(models.Model):
   def __str__(self):
     return self.name
 
+class SupervisorPermission(models.Model):
+  name = models.CharField(
+    max_length=50,
+    unique=True,
+    verbose_name=_("اسم الصلاحية"),
+  )
+  description = models.TextField(
+    verbose_name=_("وصف الصلاحية"),
+  )
+
+  class Meta:
+    verbose_name ="صلاحية المشرف"
+    verbose_name_plural ="صلاحيات المشرفين"
+
+  def __str__(self):
+    return self.name
+
 class Supervisor(models.Model):
   """يمثل المشرفين"""
   user = models.OneToOneField(
@@ -92,10 +114,10 @@ class Supervisor(models.Model):
     related_name="supervisors",
     verbose_name="المبني"
   )
-  permissions = models.JSONField(
-    default=dict,
+  permissions = models.ManyToManyField(
+    SupervisorPermission,
     verbose_name="الصلاحيات",
-    help_text="حدد صلاحيات المشرف"
+    blank=True,
   )
 
   class Meta:
@@ -104,6 +126,25 @@ class Supervisor(models.Model):
 
   def __str__(self):
       return f"{self.user.username} - {self.building.name}"
+
+class UnitType(models.Model):
+  name = models.CharField(
+    max_length=50,
+    unique=True,
+    verbose_name=_("نوع الوحدة"),
+  )
+  description = models.TextField(
+    blank=True,
+    null=True,
+    verbose_name=_("وصف"),
+  )
+
+  class Meta:
+    verbose_name = "نوع الوحدة"
+    verbose_name_plural = "أنواع الوحدات"
+
+  def __str__(self):
+    return self.name
     
 class Unit(models.Model): 
     """يمثل الوحدات السكنية أو التجارية في المبني"""
@@ -117,6 +158,13 @@ class Unit(models.Model):
       max_length=10,
       unique=True,
       verbose_name="رقم الوحدة"
+    )
+    unit_type = models.ForeignKey(
+      UnitType,
+      on_delete=models.SET_NULL,
+      null=True,
+      blank=True,
+      verbose_name="نوع الوحدة",
     )
     size = models.FloatField(
       verbose_name="المساحة (متر مربع)"
@@ -166,6 +214,12 @@ class Tenant(models.Model):
       max_length=20,
       unique=True,
       verbose_name="رقم البطاقة المدنية / السجل التجاري"
+    )
+    company_name = models.CharField(
+      max_length=100,
+      blank=True,
+      null=True,
+      verbose_name="اسم الشركة"
     )
     address = models.CharField(
       max_length=255,
