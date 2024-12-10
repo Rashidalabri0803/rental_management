@@ -84,7 +84,7 @@ class TenantForm(forms.ModelForm):
 class LeaseForm(forms.ModelForm):
     class Meta:
         model = Lease
-        fields = ['contract_number', 'unit', 'tenant', 'start_date', 'end_date', 'monthly_rent', 'deposit', 'status', 'is_active']
+        fields = ['contract_number', 'unit', 'tenant', 'start_date', 'end_date', 'monthly_rent', 'deposit','is_active']
         widgets = {
             'contract_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم العقد'}),
             'unit': forms.Select(attrs={'class': 'form-control'}),
@@ -93,7 +93,6 @@ class LeaseForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'monthly_rent': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'الإيجار الشهري'}),
             'deposit': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المقدم'}),
-            'status': forms.Select(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 

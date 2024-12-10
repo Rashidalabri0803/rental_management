@@ -52,8 +52,8 @@ class TenantAdmin(admin.ModelAdmin):
 
 @admin.register(Lease)
 class LeaseAdmin(admin.ModelAdmin):
-    list_display = ('contract_number', 'unit', 'tenant', 'start_date', 'end_date', 'monthly_rent', 'status', 'is_active')
-    list_filter = ('status', 'is_active', 'start_date', 'end_date')
+    list_display = ('contract_number', 'unit', 'tenant', 'start_date', 'end_date', 'monthly_rent', 'is_active')
+    list_filter = ('is_active', 'start_date', 'end_date')
     search_fields = ('contract_number', 'unit__unit_number', 'tenant__user__username')
     ordering = ('-start_date',)
 
