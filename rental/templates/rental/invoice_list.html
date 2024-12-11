@@ -1,0 +1,43 @@
+{% extends 'rental/base.html' %}
+{% block title %}الفواتير{% endblock %}
+{% block content %}
+<h1 class="mb-4">الفواتير</h1>
+<a href="{% url 'rental:add_invoice' %}" class="btn btn-primary mb-3"><i class="fas fa-plus">إضافة فاتورة جديدة</i></a>
+<table class="table table-bordered table-striped">
+  <thead class="table-dark">
+    <tr>
+      <th>رقم الفاتورة</th>
+      <th>العقد</th>
+      <th>تاريخ الإصدار</th>
+      <th>تاريخ الاستحقاق</th>
+      <th>المبلغ الإجمالي</th>
+      <th>الحالة</th>
+      <th>الإجراءات</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invoice in invoices %}
+    <tr>
+      <td>{{ invoice.invoice_number }}</td>
+      <td>{{ invoice.lease.contract_number }}</td>
+      <td>{{ invoice.issue_date }}</td>
+      <td>{{ invoice.due_date }}</td>
+      <td>{{ invoice.total_amount }}</td>
+      <td>
+        {{ invoice.get_status_display }}
+      </td>
+      <td>
+        <a href="{% url 'rental:edit_invoice' invoice.pk %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i>تعديل</a>
+        <a href="{% url 'rental:delete_invoice' invoice.pk %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>حذف</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7" class="text-center">
+        لا توجد فواتير
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

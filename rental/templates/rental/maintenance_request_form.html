@@ -1,7 +1,7 @@
 {% extends 'rental/base.html' %}
 {% block title %}تعديل طلب صيانة{% endblock %}
 {% block content %}
-<h1>تعديل طلب صيانة</h1>
+<h1>{% if object %}تعديل{% else %}إضافة{% endif %} طلب الصيانة</h1>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}

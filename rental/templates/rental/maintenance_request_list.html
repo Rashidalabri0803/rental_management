@@ -20,17 +20,17 @@
       <td>{{ request.description }}</td>
       <td>{{ request.request_date }}</td>
       <td>
-        {% if request.status == 'pending' %}
-          <span class="badge bg-warning text-dark">قيد الانتظار</span>
-        {% elif request.status == 'in_progress' %}
-          <span class="badge bg-info text-dark">قيد التنفيذ</span>
-        {% else %}
-          <span class="badge bg-success">مكتملة</span>
-        {% endif %}
+        {{ request.get_status_display }}
       </td>
       <td>
         <a href="{% url 'rental:edit_maintenance_request' request.pk %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i>تعديل</a>
         <a href="{% url 'rental:delete_maintenance_request' request.pk %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>حذف</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5" class="text-center">
+        لا توجد طلبات الصيانة
       </td>
     </tr>
     {% endfor %}
