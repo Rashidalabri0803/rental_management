@@ -3,26 +3,41 @@ from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, P
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'phone_number', 'email', 'is_superuser', 'is_tenant', 'is_staff', 'is_active')
-    list_filter = ('is_superuser', 'is_tenant', 'is_staff', 'is_active')
+    list_display = ('username', 'phone_number', 'email', 'is_superuser', 'is_tenant', 'is_active')
+    list_filter = ('is_superuser', 'is_tenant', 'is_active')
     search_fields = ('username', 'phone_number', 'email')
     ordering = ('username',)
     fieldsets = (
         (None, {'fields': ('username', 'password', 'phone_number', 'email')}),
-        ('Permissions', {'fields': ('is_superuser', 'is_tenant', 'is_staff', 'is_active')}),
+        ('Permissions', {'fields': ('is_superuser', 'is_tenant', 'is_active')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     readonly_fields = ('last_login', 'date_joined')
 
+class UnitInline(admin.TabularInline):
+    model = Unit
+    extra = 0
+    fields = ('unit_number', 'unit_type', 'floor_number', 'rent_price', 'status')
+    readonly_fields = ('unit_number', 'unit_type', 'status')
+    can_delete = False
+
 @admin.register(Building)
 class BuildingAdmin(admin.ModelAdmin):
-    list_display = ('name', 'location', 'total_units', 'created_at', 'updated_at')
-    search_fields = ('name', 'location')
+    list_display = ('name', 'location', 'get_rented', 'get_available_units', 'created_at')
+    search_fields = ('name', 'location', 'address')
     list_filter = ('created_at',)
     ordering = ('name',)
     readonly_fields = ('created_at', 'updated_at')
-    inlines = []
+    inlines = [UnitInline]
 
+    def get_rented_units(self, obj):
+        return obj.get_rented_units()
+    get_rented_units.short_description = "عدد الوحدات المؤجرة"
+
+    def get_available_units(self, obj):
+        return obj.get_available_units()
+    get_available_units.short_description = "عدد الوحدات المتاحة"
+    
 @admin.register(Supervisor)
 class SupervisorAdmin(admin.ModelAdmin):
     list_display = ('user', 'building')
@@ -39,15 +54,23 @@ class UnitTypeAdmin(admin.ModelAdmin):
 class UnitAdmin(admin.ModelAdmin):
     list_display = ('unit_number', 'building', 'unit_type', 'floor_number', 'rent_price', 'status')
     list_filter = ('building', 'status', 'unit_type')
-    search_fields = ('unit_number', 'building__name')
+    search_fields = ('unit_number', 'building__name', 'status')
     ordering = ('unit_number',)
 
+class LeaseInline(admin.TabularInline):
+    model = Lease
+    extra = 0
+    fields = ('contract_number', 'unit', 'start_date', 'end_date', 'monthly_rent', 'status')
+    readonly_fields = ('contract_number', 'unit', 'status')
+    can_delete = False
+    
 @admin.register(Tenant)
 class TenantAdmin(admin.ModelAdmin):
-    list_display = ('user', 'tenant_type', 'national_id', 'company_name')
+    list_display = ('user', 'tenant_type', 'national_id', 'company_name', 'address')
     list_filter = ('tenant_type',)
     search_fields = ('user__username', 'national_id', 'company_name')
     ordering = ('user__username',)
+    inlines = [LeaseInline]
 
 @admin.register(Lease)
 class LeaseAdmin(admin.ModelAdmin):
@@ -72,7 +95,7 @@ class LeaseAdmin(admin.ModelAdmin):
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ('lease', 'date', 'amount', 'payment_method', 'notes')
     list_filter = ('payment_method', 'date')
-    search_fields = ('lease__contract_number',)
+    search_fields = ('lease__contract_number', 'amount')
     ordering = ('-date',)
 
 @admin.register(Notifiction)
@@ -93,15 +116,15 @@ class NotifictionAdmin(admin.ModelAdmin):
         self.message_user(request, f"{deleted_count} إشعار تم حذفه.")
     delete_notifiction.short_description = "حذف الإشعارات المحددة"
 
-    @admin.register(MaintenanceRequest)
-    class MaintenanceRequestAdmin(admin.ModelAdmin):
-        list_display = ('unit', 'description', 'request_date', 'status', 'notes')
-        list_filter = ('status',)
-        search_fields = ('unit__unit_number', 'description')
-        ordering = ('-request_date',)
-        actions = ['mark_completed']
+@admin.register(MaintenanceRequest)
+class MaintenanceRequestAdmin(admin.ModelAdmin):
+    list_display = ('unit', 'description', 'request_date', 'status', 'notes')
+    list_filter = ('status',)
+    search_fields = ('unit__unit_number', 'description')
+    ordering = ('-request_date',)
+    actions = ['mark_completed']
 
-        def mark_completed(self, request, queryset):
-            updated_count = queryset.update(status='completed')
-            self.message_user(request, f"{updated_count} طلب صيانة تم تحديده كمكتمل.")
-        mark_completed.short_description = "تحديد طلبات الصيانة كمكتملة"
+    def mark_completed(self, request, queryset):
+        updated_count = queryset.update(status='completed')
+        self.message_user(request, f"{updated_count} طلب صيانة تم تحديده كمكتمل.")
+    mark_completed.short_description = "تحديد طلبات الصيانة كمكتملة"
