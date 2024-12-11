@@ -31,18 +31,20 @@ def logout_view(request):
 @login_required
 def supervisor_dashboard(request):
     buildings = Building.objects.all()
-    tenants = Tenant.objects.all()
     units = Unit.objects.all()
-    maintenance_requests = MaintenanceRequest.objects.filter(status='pending')
-    return render(request, 'rental/supervisor_dashboard.html', {'buildings': buildings, 'tenants': tenants, 'units': units, 'maintenance_requests': maintenance_requests})
+    tenants = Tenant.objects.all()
+    active_leases = Lease.objects.filter(is_active=True)
+    pending_maintenance = MaintenanceRequest.objects.filter(status='pending')
+    return render(request, 'rental/supervisor_dashboard.html', {'buildings': buildings, 'units': units, 'tenants': tenants, 'active_leases': active_leases, 'pending_maintenance': pending_maintenance})
 
 @login_required
 def tenant_dashboard(request):
     tenant = get_object_or_404(Tenant, user=request.user)
     leases = Lease.objects.filter(tenant=tenant)
     maintenance_requests = MaintenanceRequest.objects.filter(unit__lease__tenant=tenant)
-    invoices = Invoice.objects.filter(lease__tenant=tenant)
-    return render(request, 'rental/tenant_dashboard.html', {'tenant': tenant, 'leases': leases, 'maintenance_requests': maintenance_requests, 'invoices': invoices})
+    payments = Payment.objects.filter(lease__tenant=tenant)
+    notifications = Notifiction.objects.filter(user=request.user, read=False)
+    return render(request, 'rental/tenant_dashboard.html', {'tenant': tenant, 'leases': leases, 'maintenance_requests': maintenance_requests, 'payments': payments, 'notifications' : notifications})
 
 class BuildingListView(ListView):
     model = Building
@@ -143,6 +145,22 @@ class PaymentCreateView(CreateView):
     template_name = 'rental/payment_form.html'
     success_url = reverse_lazy('rental:payment_list')
 
+class NoitificationListView(ListView):
+    model = Notifiction
+    template_name = 'rental/notifiction_list.html'
+    context_object_name = 'notifications'
+
+    def get_queryset(self):
+        return Notifiction.objects.filter(user=self.request.user)
+
+@login_required
+def mark_notifiction_as_read(request, pk):
+    notifiction = get_object_or_404(Notifiction, pk=pk, user=request.user)
+    notifiction.read = True
+    notifiction.save()
+    messages.success(request, "تم تعليم الإشعار كمقروء.")
+    return redirect('rental:notifiction_list')
+
 class MaintenanceRquestListView(ListView):
     model = MaintenanceRequest
     template_name = 'rental/maintenance_request_list.html'
@@ -153,30 +171,3 @@ class MaintenanceRquestCreateView(CreateView):
     form_class = MaintenanceRequestForm
     template_name = 'rental/maintenance_request_form.html'
     success_url = reverse_lazy('rental:maintenance_request_list')
-
-class InvoceListView(ListView):
-    model = Invoice
-    template_name = 'rental/invoice_list.html'
-    context_object_name = 'invoices'
-
-class InvoceCreateView(CreateView):
-    model = Invoice
-    form_class = InvoiceForm
-    template_name = 'rental/invoice_form.html'
-    success_url = reverse_lazy('rental:invoice_list')
-
-class SupportMessageListView(ListView):
-    model = SupportMessage
-    template_name = 'rental/support_message_list.html'
-    context_object_name = 'support_messages'
-
-class SupportMessageCreateView(CreateView):
-    model = SupportMessage
-    form_class = SuppMessageForm
-    template_name = 'rental/support_message_form.html'
-    success_url = reverse_lazy('rental:support_message_list')
-
-class NotifictionListView(ListView):
-    model = Notifiction
-    template_name = 'rental/notifiction_list.html'
-    context_object_name = 'notifictions'

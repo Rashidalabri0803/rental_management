@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views 
+
 app_name = 'rental'
+
 urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -31,14 +33,9 @@ urlpatterns = [
     path('payments/', views.PaymentListView.as_view(), name='payment_list'),
     path('payments/add/', views.PaymentCreateView.as_view(), name='add_payment'),
 
+    path('notifictions/', views.NoitificationListView.as_view(), name='notifiction_list'),
+    path('notifictions/<int:pk>/read/', views.mark_notifiction_as_read, name='mark_notifiction_as_read'),
+
     path('maintenance_requests/', views.MaintenanceRquestListView.as_view(), name='maintenance_request_list'),
     path('maintenance_requests/add/', views.MaintenanceRquestCreateView.as_view(), name='add_maintenance_request'),
-
-    path('invoices/', views.InvoceListView.as_view(), name='invoice_list'),
-    path('invoices/add/', views.InvoceCreateView.as_view(), name='add_invoice'),
-
-    path('support_messages/', views.SupportMessageListView.as_view(), name='support_message_list'),
-    path('support_messages/add/', views.SupportMessageCreateView.as_view(), name='add_support_message'),
-
-    path('notifictions/', views.NotifictionListView.as_view(), name='notifiction_list'),
 ]
