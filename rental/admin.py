@@ -23,7 +23,7 @@ class UnitInline(admin.TabularInline):
 
 @admin.register(Building)
 class BuildingAdmin(admin.ModelAdmin):
-    list_display = ('name', 'location', 'get_rented', 'get_available_units', 'created_at')
+    list_display = ('name', 'location', 'get_rented_units', 'get_available_units', 'created_at')
     search_fields = ('name', 'location', 'address')
     list_filter = ('created_at',)
     ordering = ('name',)
