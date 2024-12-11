@@ -7,6 +7,8 @@ from datetime import date
 from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest
 from .forms import UserForm, BuildingForm, SupervisorForm, UnitForm, UnitTypeForm, TenantForm, LeaseForm, PaymentForm, NotifictionForm, MaintenanceRequestForm
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+
 def login_view(request):
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
@@ -74,41 +76,90 @@ class BuildingCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, "تمت إضافة المبني بنجاح")
         return super().form_valid(form)
 
-class BuildingUpdateView(UpdateView):
+class BuildingUpdateView(LoginRequiredMixin, UpdateView):
     model = Building
     form_class = BuildingForm
     template_name = 'rental/building_form.html'
     success_url = reverse_lazy('rental:building_list')
 
-    
-
-class BuildingDeleteView(DeleteView):
+    def form_valid(self, form):
+        messages.success(self.request, "تم تحديث بيانات المبني بنجاح")
+        return super().form_valid(form)
+        
+class BuildingDeleteView(LoginRequiredMixin, DeleteView):
     model = Building
     template_name = 'rental/building_confirm_delete.html'
     success_url = reverse_lazy('rental:building_list')
 
-class UnitListView(ListView):
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "تم حذف المبني بنجاح")
+        return super().delete(request, *args, **kwargs)
+
+class UnitListView(LoginRequiredMixin, ListView):
     model = Unit
     template_name = 'rental/unit_list.html'
     context_object_name = 'units'
 
-class UnitCreateView(CreateView):
+class UnitCreateView(LoginRequiredMixin, CreateView):
     model = Unit
     form_class = UnitForm
     template_name = 'rental/unit_form.html'
     success_url = reverse_lazy('rental:unit_list')
 
-class UnitUpdateView(UpdateView):
+    def form_valid(self, form):
+        messages.success(self.request, "تمت إضافة الوحدة بنجاح")
+        return super().form_valid(form)
+
+class UnitUpdateView(LoginRequiredMixin, UpdateView):
     model = Unit
     form_class = UnitForm
     template_name = 'rental/unit_form.html'
     success_url = reverse_lazy('rental:unit_list')
 
-class UnitDeleteView(DeleteView):
+    def form_valid(self, form):
+        messages.success(self.request, "تم تحديث بيانات الوحدة بنجاح")
+        return super().form_valid(form)
+
+class UnitDeleteView(LoginRequiredMixin, DeleteView):
     model = Unit
     template_name = 'rental/unit_confirm_delete.html'
     success_url = reverse_lazy('rental:unit_list')
 
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "تم حذف الوحدة بنجاح")
+        return super().delete(request, *args, **kwargs)
+
+class NoitificationListView(LoginRequiredMixin, ListView):
+    model = Notifiction
+    template_name = 'rental/notifiction_list.html'
+    context_object_name = 'notifications'
+
+    def get_queryset(self):
+        return Notifiction.objects.filter(user=self.request.user)
+
+@login_required
+def mark_notifiction_as_read(request, pk):
+    notifiction = get_object_or_404(Notifiction, pk=pk, user=request.user)
+    notifiction.read = True
+    notifiction.save()
+    messages.success(request, "تم تعليم الإشعار كمقروء.")
+    return redirect('rental:notifiction_list')
+
+class MaintenanceRquestListView(LoginRequiredMixin, ListView):
+    model = MaintenanceRequest
+    template_name = 'rental/maintenance_request_list.html'
+    context_object_name = 'maintenance_requests'
+
+class MaintenanceRquestCreateView(LoginRequiredMixin, CreateView):
+    model = MaintenanceRequest
+    form_class = MaintenanceRequestForm
+    template_name = 'rental/maintenance_request_form.html'
+    success_url = reverse_lazy('rental:maintenance_request_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم إرسال طلب الصيانة بنجاح")
+        return super().form_valid(form)
+    
 class TenantListView(ListView):
     model = Tenant
     template_name = 'rental/tenant_list.html'
@@ -163,30 +214,3 @@ class PaymentCreateView(CreateView):
     form_class = PaymentForm
     template_name = 'rental/payment_form.html'
     success_url = reverse_lazy('rental:payment_list')
-
-class NoitificationListView(ListView):
-    model = Notifiction
-    template_name = 'rental/notifiction_list.html'
-    context_object_name = 'notifications'
-
-    def get_queryset(self):
-        return Notifiction.objects.filter(user=self.request.user)
-
-@login_required
-def mark_notifiction_as_read(request, pk):
-    notifiction = get_object_or_404(Notifiction, pk=pk, user=request.user)
-    notifiction.read = True
-    notifiction.save()
-    messages.success(request, "تم تعليم الإشعار كمقروء.")
-    return redirect('rental:notifiction_list')
-
-class MaintenanceRquestListView(ListView):
-    model = MaintenanceRequest
-    template_name = 'rental/maintenance_request_list.html'
-    context_object_name = 'maintenance_requests'
-
-class MaintenanceRquestCreateView(CreateView):
-    model = MaintenanceRequest
-    form_class = MaintenanceRequestForm
-    template_name = 'rental/maintenance_request_form.html'
-    success_url = reverse_lazy('rental:maintenance_request_list')
