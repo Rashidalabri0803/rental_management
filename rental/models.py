@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
+from datetime import date, timedelta
 
 TENANT_TYPE_CHOICES = [
   ('Individual', "شخصي"),
@@ -89,6 +91,12 @@ class Building(models.Model):
   def __str_(self):
     return self.name
 
+  def get_rented_units(self):
+    return self.units.filter(status='rented').count()
+
+  def get_available_units(self):
+    return self.units.filter(status='available').count()
+
 class Supervisor(models.Model):
   """يمثل المشرفين"""
   user = models.OneToOneField(
@@ -171,12 +179,6 @@ class Unit(models.Model):
       null=True,
       verbose_name="وصف الوحدة"
     )
-    address = models.CharField(
-      max_length=255,
-      verbose_name="عنوان الوحدة",
-      blank=True,
-      null=True,
-    )
 
     class Meta:
         verbose_name = "وحدة"
@@ -185,6 +187,10 @@ class Unit(models.Model):
 
     def __str_(self):
       return f"وحدة {self.unit_number} - {self.building.name}"
+
+    def clean(self):
+      if self.rent_price <= 0:
+        raise ValidationError("سعر الإيجار يجب أن يكون أكبر من صفر.")
 
 
 class Tenant(models.Model):
@@ -283,6 +289,9 @@ class Lease(models.Model):
 
     def __str_(self):
         return f"عقد {self.contract_number} - {self.unit.unit_number}"
+
+    def get_remaining_days(self):
+      return (self.end_date - date.today()).days
 
 class Payment(models.Model):
     """يمثل المدفوعات"""
