@@ -9,7 +9,12 @@ TENANT_TYPE_CHOICES = [
   ('Individual', "شخصي"),
   ('Company', "شركة"),
 ]
-
+STATUS_CHOICES = [
+    ('pending', "قيد الانتظار"),
+    ('in_progress', "تحت التنفيذ"),
+    ('completed', "مكتملة"),
+    ('rejected', "مرفوضة"),
+  ]
 UNIT_STATUS_CHOICES = [
   ('available', "متاحة"),
   ('rented', "مؤجرة"),
@@ -363,12 +368,6 @@ class Notifiction(models.Model):
       
 class MaintenanceRequest(models.Model):
     """يمثل طلبات الصيانة"""
-    STATUS_CHOICES = [
-    ('pending', "قيد الانتظار"),
-    ('in_progress', "تحت التنفيذ"),
-    ('completed', "مكتملة"),
-    ('rejected', "مرفوضة"),
-  ],
     unit = models.ForeignKey(
       Unit,
       on_delete=models.CASCADE,
