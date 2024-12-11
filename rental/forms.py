@@ -1,5 +1,7 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest
+from datetime import date
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -14,13 +16,20 @@ class UserForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if not phone_number.isdigit() or len(phone_number) != 10:
+            raise ValidationError('يجب أن يكون رقم الهاتف صحيحًا ومكون من 10 أرقام')
+        return phone_number
+
 class BuildingForm(forms.ModelForm):
     class Meta:
         model = Building
-        fields = ['name', 'location', 'total_units']
+        fields = ['name', 'location', 'address', 'total_units']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المبني'}),
             'location': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'موقع المبني'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'عنوان المبني'}),
             'total_units': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'عدد الوحدات'}),
         }
 
@@ -45,7 +54,7 @@ class UnitTypeForm(forms.ModelForm):
 class UnitForm(forms.ModelForm):
     class Meta:
         model = Unit
-        fields = ['unit_number', 'building', 'unit_type', 'floor_number', 'size', 'rent_price', 'status']
+        fields = ['unit_number', 'building', 'unit_type', 'floor_number', 'size', 'rent_price', 'status', 'description']
         widgets = {
             'unit_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الوحدة'}),
             'building': forms.Select(attrs={'class': 'form-control'}),
@@ -54,7 +63,14 @@ class UnitForm(forms.ModelForm):
             'size': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المساحة'}),
             'rent_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'سعر الإيجار'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'وصف الوحدة'}),
         }
+
+    def clean_rent_price(self):
+        rent_price = self.cleaned_data.get('rent_price')
+        if rent_price <= 0:
+            raise ValidationError('سعر الإيجار يجب أن يكون أكبر من صفر')
+        return rent_price
 
 class TenantForm(forms.ModelForm):
     class Meta:
