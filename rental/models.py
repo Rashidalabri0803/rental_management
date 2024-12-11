@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from datetime import date, timedelta
+from django.utils.timezone import now
 
 TENANT_TYPE_CHOICES = [
   ('Individual', "شخصي"),
@@ -362,9 +363,16 @@ class Notifiction(models.Model):
       
 class MaintenanceRequest(models.Model):
     """يمثل طلبات الصيانة"""
+    STATUS_CHOICES = [
+    ('pending', "قيد الانتظار"),
+    ('in_progress', "تحت التنفيذ"),
+    ('completed', "مكتملة"),
+    ('rejected', "مرفوضة"),
+  ],
     unit = models.ForeignKey(
       Unit,
       on_delete=models.CASCADE,
+      related_name="maintenance_requests",
       verbose_name="الوحدة"
     )
     description = models.TextField(
@@ -375,12 +383,8 @@ class MaintenanceRequest(models.Model):
       verbose_name="تاريخ الطلب"
     )
     status = models.CharField(
-      max_length=20,
-      choices=[
-        ('pending', 'قيد الانتظار'),
-        ('in_progress', 'قيد التنفيذ'),
-        ('completed', 'مكتملة'),
-      ],
+      max_length=15,
+      choices=STATUS_CHOICES,
       default='pending',
       verbose_name="حالة الطلب"
     )
@@ -398,19 +402,29 @@ class MaintenanceRequest(models.Model):
     def __str_(self):
         return f"طلب صيانة للوحدة {self.unit.unit_number} - {self.get_status_display()}"
 
+    def mark_as_completed(self):
+        self.status = 'completed'
+        self.save()
+
 class Invoice(models.Model):
+  STATUS_CHOICES = [
+    ('unpaid', "غير مدفوعة"),
+    ('paid', "مدفوعة"),
+    ('overdue', "متأخرة"),
+  ]
+  invoice_number = models.CharField(
+    max_length=20,
+    unique=True,
+    verbose_name="رقم الفاتورة"
+  )
   lease = models.ForeignKey(
     Lease,
     on_delete=models.CASCADE,
     related_name="invoices",
     verbose_name="عقد الإيجار"
   )
-  invoice_number = models.CharField(
-    max_length=20,
-    unique=True,
-    verbose_name="رقم الفاتورة"
-  )
   issue_date = models.DateField(
+    auto_now_add=True,
     verbose_name="تاريخ الإصدار"
   )
   due_date = models.DateField(
@@ -421,15 +435,11 @@ class Invoice(models.Model):
     decimal_places=2,
     verbose_name="إجمالي المبلغ (ريال عماني)"
   )
-  vat = models.DecimalField(
-    max_digits=10,
-    decimal_places=2,
-    default=0.0,
-    verbose_name="ضريبة القيمة المضافة (%)"
-  )
-  paid = models.BooleanField(
-    default=False,
-    verbose_name="مدفوعة"
+  status = models.CharField(
+    max_length=10,
+    choices=STATUS_CHOICES,
+    default='unpaid',
+    verbose_name="حالة الفاتورة"
   )
 
   class Meta:
@@ -440,16 +450,23 @@ class Invoice(models.Model):
   def __str_(self):
       return f"فاتورة {self.invoice_number} - {self.lease.contract_number}"
 
+  def is_overdues(self):
+    return self.due_date < date.today() and self.status != 'paid'
+
+  def mark_as_paid(self):
+    self.status = 'paid'
+    self.save()
+
 class ActivityLog(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         verbose_name="المستخدم"
     )
     action = models.CharField(
         max_length=255,
-        verbose_name="الإجراء"
+        verbose_name="النشاط"
     )
     timestamp = models.DateTimeField(
         auto_now_add=True,
@@ -458,7 +475,7 @@ class ActivityLog(models.Model):
     details = models.TextField(
         blank=True,
         null=True,
-        verbose_name="تفاصيل الإجراء"
+        verbose_name="تفاصيل إضافية"
     )
 
     class Meta:
@@ -467,7 +484,7 @@ class ActivityLog(models.Model):
         ordering = ['-timestamp']
 
     def __str_(self):
-        return f"{self.user.username if self.user else 'نظام'} - {self.action}"
+        return f"نشاط بواسطة {self.user.username} - {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
 
 class SupportMessage(models.Model):
     """يمثل رسائل الدعم"""

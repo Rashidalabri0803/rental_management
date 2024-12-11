@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest
+from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -119,12 +119,42 @@ class NotifictionAdmin(admin.ModelAdmin):
 @admin.register(MaintenanceRequest)
 class MaintenanceRequestAdmin(admin.ModelAdmin):
     list_display = ('unit', 'description', 'request_date', 'status', 'notes')
-    list_filter = ('status',)
-    search_fields = ('unit__unit_number', 'description')
+    list_filter = ('status', 'request_date')
+    search_fields = ('unit__unit_number', 'description', 'notes')
     ordering = ('-request_date',)
-    actions = ['mark_completed']
+    actions = ['mark_completed', 'mark_as_in_progress']
 
-    def mark_completed(self, request, queryset):
+    def mark_as_completed(self, request, queryset):
         updated_count = queryset.update(status='completed')
-        self.message_user(request, f"{updated_count} طلب صيانة تم تحديده كمكتمل.")
-    mark_completed.short_description = "تحديد طلبات الصيانة كمكتملة"
+        self.message_user(request, f"{updated_count} طلب تم تحديده كمكتمل.")
+    mark_as_completed.short_description = "تحديد الطلبات المكتملة"
+
+    def mark_as_in_progress(self, request, queryset):
+        updated_count = queryset.update(status='in progress')
+        self.message_user(request, f"{updated_count} طلب تم تحديده كتحت للتنفيذ.")
+    mark_as_in_progress.short_description = "تحديد الطلبات كتحت التنفيذ"
+
+@admin.register(Invoice)
+class InvoiceAdmin(admin.ModelAdmin):
+    list_display = ('invoice_number', 'lease', 'issue_date', 'due_date', 'total_amount', 'status')
+    list_filter = ('status', 'issue_date', 'due_date')
+    search_fields = ('invoice_number', 'lease__contract_number', 'total_amount')
+    ordering = ('-issue_date',)
+    actions = ['mark_as_paid', 'mark_as_unpaid']
+
+    def mark_as_paid(self, request, queryset):
+        updated_count = queryset.update(status='paid')
+        self.message_user(request, f"{updated_count} فاتورة تم تحديده كمدفوعة.")
+    mark_as_paid.short_description = "تحديد الفواتير المدفوعة"
+
+    def mark_as_unpaid(self, request, queryset):
+        updated_count = queryset.update(status='unpaid')
+        self.message_user(request, f"{updated_count} فاتورة تم تحديده كغير مدفوعة.")
+    mark_as_unpaid.short_description = "تحديد الفواتير غير مدفوعة"
+
+@admin.register(ActivityLog)
+class ActivityLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'action', 'timestamp', 'details')
+    list_filter = ('timestamp')
+    search_fields = ('user__username', 'action', 'details')
+    ordering = ('-timestamp',)
