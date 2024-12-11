@@ -7,8 +7,8 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 
-    path('supervisor/dashboard/', views.SupervisorDashboardView, name='supervisor_dashboard'),
-    path('tenant/dashboard/', views.TenantDashboardView, name='tenant_dashboard'),
+    path('supervisor/dashboard/', views.SupervisorDashboardView.as_view(), name='supervisor_dashboard'),
+    path('tenant/dashboard/', views.TenantDashboardView.as_view(), name='tenant_dashboard'),
 
     path('buildings/', views.BuildingListView.as_view(), name='building_list'),
     path('buildings/add/', views.BuildingCreateView.as_view(), name='add_building'),
@@ -38,4 +38,14 @@ urlpatterns = [
 
     path('maintenance_requests/', views.MaintenanceRquestListView.as_view(), name='maintenance_request_list'),
     path('maintenance_requests/add/', views.MaintenanceRquestCreateView.as_view(), name='add_maintenance_request'),
+    path('maintenance_requests/<int:pk>/edit/', views.MaintenanceRquestUpdateView.as_view(), name='edit_maintenance_request'),
+    path('maintenance_requests/<int:pk>/delete/', views.MaintenanceRquestDeleteView.as_view(), name='delete_maintenance_request'),
+
+    path('invoices/', views.InvoiceListView.as_view(), name='invoice_list'),
+    path('invoices/add/', views.InvoiceCreateView.as_view(), name='add_invoice'),
+    path('invoices/<int:pk>/edit/', views.InvoiceUpdateView.as_view(), name='edit_invoice'),
+    path('invoices/<int:pk>/delete/', views.InvoiceDeleteView.as_view(), name='delete_invoice'),
+
+    path('activity_logs/', views.ActivityLogListView.as_view(), name='activity_log_list'),
+    path('activity_logs/add/', views.ActivityLogCreateView.as_view(), name='add_activity_log'),
 ]

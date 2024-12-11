@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest
+from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog
 from datetime import date
 
 class UserForm(forms.ModelForm):
@@ -19,7 +19,7 @@ class UserForm(forms.ModelForm):
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
         if not phone_number.isdigit() or len(phone_number) != 10:
-            raise ValidationError('يجب أن يكون رقم الهاتف صحيحًا ومكون من 10 أرقام')
+            raise ValidationError("يجب أن يكون رقم الهاتف صحيحًا ومكون من 10 أرقام")
         return phone_number
 
 class BuildingForm(forms.ModelForm):
@@ -69,7 +69,7 @@ class UnitForm(forms.ModelForm):
     def clean_rent_price(self):
         rent_price = self.cleaned_data.get('rent_price')
         if rent_price <= 0:
-            raise ValidationError('سعر الإيجار يجب أن يكون أكبر من صفر')
+            raise ValidationError("سعر الإيجار يجب أن يكون أكبر من صفر")
         return rent_price
 
 class TenantForm(forms.ModelForm):
@@ -105,7 +105,7 @@ class LeaseForm(forms.ModelForm):
             start_date = cleaned_data.get('start_date')
             end_date = cleaned_data.get('end_date')
             if start_date and end_date and start_date > end_date:
-                raise forms.ValidationError('تاريخ البداية يجب أن يكون قبل تاريخ النهاية.')
+                raise forms.ValidationError("تاريخ البداية يجب أن يكون قبل تاريخ النهاية.")
             return cleaned_data
 
 class PaymentForm(forms.ModelForm):
@@ -140,4 +140,37 @@ class MaintenanceRequestForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'وصف الصيانة'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات إضافية'}),
+        }
+
+        def clean_description(self):
+            description = self.cleaned_data.get('description')
+            if len(description) < 10:
+                raise forms.ValidationError("يجب أن يكون وصف الصيانة أكبر من 10 حرفًا")
+
+class InvoiceForm(forms.ModelForm):
+    class Meta:
+        model = Invoice
+        fields = ['invoice_number', 'lease', 'due_date', 'total_amount', 'status']
+        widgets = {
+            'invoice_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الفاتورة'}),
+            'lease': forms.Select(attrs={'class': 'form-control'}),
+            'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'total_amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المبلغ الكلي'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def clean_due_date(self):
+        due_date = self.cleaned_data.get('due_date')
+        if due_date < date.today():
+            raise forms.ValidationError("تاريخ الاستحقاق يجب أن يكون في المستقبل")
+        return due_date
+
+class ActivityLogForm(forms.ModelForm):
+    class Meta:
+        model = ActivityLog
+        fields = ['user', 'action', 'details']
+        widgets = {
+            'user': forms.Select(attrs={'class': 'form-control'}),
+            'action': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'وصف النشاط'}),
+            'details': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'تفاصيل إضافة'}),
         }

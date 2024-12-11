@@ -155,6 +155,6 @@ class InvoiceAdmin(admin.ModelAdmin):
 @admin.register(ActivityLog)
 class ActivityLogAdmin(admin.ModelAdmin):
     list_display = ('user', 'action', 'timestamp', 'details')
-    list_filter = ('timestamp')
+    list_filter = ('timestamp',)
     search_fields = ('user__username', 'action', 'details')
     ordering = ('-timestamp',)

@@ -4,8 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from datetime import date
-from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest
-from .forms import UserForm, BuildingForm, SupervisorForm, UnitForm, UnitTypeForm, TenantForm, LeaseForm, PaymentForm, NotifictionForm, MaintenanceRequestForm
+from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog
+from .forms import UserForm, BuildingForm, SupervisorForm, UnitForm, UnitTypeForm, TenantForm, LeaseForm, PaymentForm, NotifictionForm, MaintenanceRequestForm, InvoiceForm, ActivityLogForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
@@ -149,6 +149,15 @@ class MaintenanceRquestListView(LoginRequiredMixin, ListView):
     model = MaintenanceRequest
     template_name = 'rental/maintenance_request_list.html'
     context_object_name = 'maintenance_requests'
+    ordering = ['-request_date']
+
+    def get_queryset(self):
+        if slef.request.user.is_superuser:
+            return MaintenanceRequest.objects.all()
+        elif self.request.user.is_tenant:
+            tenant_units = Unit.objects.filter(lease__tenant=self.request.user)
+            return MaintenanceRequest.objects.filter(unit__in=tenant_units)
+        return MaintenanceRequest.objects.none()
 
 class MaintenanceRquestCreateView(LoginRequiredMixin, CreateView):
     model = MaintenanceRequest
@@ -158,6 +167,88 @@ class MaintenanceRquestCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         messages.success(self.request, "تم إرسال طلب الصيانة بنجاح")
+        return super().form_valid(form)
+
+class MaintenanceRquestUpdateView(LoginRequiredMixin, UpdateView):
+    model = MaintenanceRequest
+    form_class = MaintenanceRequestForm
+    template_name = 'rental/maintenance_request_form.html'
+    success_url = reverse_lazy('rental:maintenance_request_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم تعديل طلب الصيانة بنجاح")
+        return super().form_valid(form)
+
+class MaintenanceRquestDeleteView(LoginRequiredMixin, DeleteView):
+    model = MaintenanceRequest
+    template_name = 'rental/maintenance_request_confirm_delete.html'
+    success_url = reverse_lazy('rental:maintenance_request_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "تم حذف طلب الصيانة بنجاح")
+        return super().delete(request, *args, **kwargs)
+
+class InvoiceListView(LoginRequiredMixin, ListView):
+    model = Invoice
+    template_name = 'rental/invoice_list.html'
+    context_object_name = 'invoices'
+    ordering = ['-invoice_date']
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Invoice.objects.all()
+        elif self.request.user.is_tenant:
+            tenant_leases = Lease.objects.filter(tenant__user=self.request.user)
+        return Invoice.objects.none()
+
+class InvoiceCreateView(LoginRequiredMixin, CreateView):
+    model = Invoice
+    form_class = InvoiceForm
+    template_name = 'rental/invoice_form.html'
+    success_url = reverse_lazy('rental:invoice_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم إنشاء فاتورة بنجاح")
+        return super().form_valid(form)
+
+class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
+    model = Invoice
+    form_class = InvoiceForm
+    template_name = 'rental/invoice_form.html'
+    success_url = reverse_lazy('rental:invoice_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم تحديث فاتورة بنجاح")
+        return super().form_valid(form)
+
+class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
+    model = Invoice
+    template_name = 'rental/invoice_confirm_delete.html'
+    success_url = reverse_lazy('rental:invoice_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "تم حذف فاتورة بنجاح")
+        return super().delete(request, *args, **kwargs)
+
+class ActivityLogListView(LoginRequiredMixin, ListView):
+    model = ActivityLog
+    template_name = 'rental/activity_log_list.html'
+    context_object_name = 'activity_logs'
+    ordering = ['-timestamp']
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return ActivityLog.objects.all()
+        return ActivityLog.objects.filter(user=self.request.user)
+
+class ActivityLogCreateView(LoginRequiredMixin, CreateView):
+    model = ActivityLog
+    form_class = ActivityLogForm
+    template_name = 'rental/activity_log_form.html'
+    success_url = reverse_lazy('rental:activity_log_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "تم إضافة سجل النشاط بنجاح")
         return super().form_valid(form)
     
 class TenantListView(ListView):
