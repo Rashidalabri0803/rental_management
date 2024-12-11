@@ -17,7 +17,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Building)
 class BuildingAdmin(admin.ModelAdmin):
     list_display = ('name', 'location', 'total_units', 'created_at', 'updated_at')
-    search_fields = ('name', 'location', 'address')
+    search_fields = ('name', 'location')
     list_filter = ('created_at',)
     ordering = ('name',)
     readonly_fields = ('created_at', 'updated_at')
@@ -39,12 +39,12 @@ class UnitTypeAdmin(admin.ModelAdmin):
 class UnitAdmin(admin.ModelAdmin):
     list_display = ('unit_number', 'building', 'unit_type', 'floor_number', 'rent_price', 'status')
     list_filter = ('building', 'status', 'unit_type')
-    search_fields = ('unit_number', 'building__name', 'address')
+    search_fields = ('unit_number', 'building__name')
     ordering = ('unit_number',)
 
 @admin.register(Tenant)
 class TenantAdmin(admin.ModelAdmin):
-    list_display = ('user', 'tenant_type', 'national_id', 'company_name', 'address')
+    list_display = ('user', 'tenant_type', 'national_id', 'company_name')
     list_filter = ('tenant_type',)
     search_fields = ('user__username', 'national_id', 'company_name')
     ordering = ('user__username',)

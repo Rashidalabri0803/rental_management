@@ -17,11 +17,10 @@ class UserForm(forms.ModelForm):
 class BuildingForm(forms.ModelForm):
     class Meta:
         model = Building
-        fields = ['name', 'location', 'address', 'total_units']
+        fields = ['name', 'location', 'total_units']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المبني'}),
             'location': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'موقع المبني'}),
-            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'عنوان المبني'}),
             'total_units': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'عدد الوحدات'}),
         }
 
@@ -46,7 +45,7 @@ class UnitTypeForm(forms.ModelForm):
 class UnitForm(forms.ModelForm):
     class Meta:
         model = Unit
-        fields = ['unit_number', 'building', 'unit_type', 'floor_number', 'size', 'rent_price', 'status', 'address']
+        fields = ['unit_number', 'building', 'unit_type', 'floor_number', 'size', 'rent_price', 'status']
         widgets = {
             'unit_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الوحدة'}),
             'building': forms.Select(attrs={'class': 'form-control'}),
@@ -55,19 +54,17 @@ class UnitForm(forms.ModelForm):
             'size': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المساحة'}),
             'rent_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'سعر الإيجار'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
-            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'عنوان الوحدة'}),
         }
 
 class TenantForm(forms.ModelForm):
     class Meta:
         model = Tenant
-        fields = ['user', 'tenant_type', 'national_id', 'company_name', 'address', 'notes']
+        fields = ['user', 'tenant_type', 'national_id', 'company_name', 'notes']
         widgets = {
             'user': forms.Select(attrs={'class': 'form-control'}),
             'tenant_type': forms.Select(attrs={'class': 'form-control'}),
             'national_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم البطاقة المدنية'}),
             'company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم الشركة'}),
-            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'عنوان المستأجر'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات إضافية'}),
         }
 
