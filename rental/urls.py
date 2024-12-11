@@ -33,7 +33,7 @@ urlpatterns = [
     path('payments/', views.PaymentListView.as_view(), name='payment_list'),
     path('payments/add/', views.PaymentCreateView.as_view(), name='add_payment'),
 
-    path('notifictions/', views.NoitificationListView.as_view(), name='notifiction_list'),
+    path('notifictions/', views.NoitificationListView.as_view(), name='notification_list'),
     path('notifictions/<int:pk>/read/', views.mark_notifiction_as_read, name='mark_notifiction_as_read'),
 
     path('maintenance_requests/', views.MaintenanceRquestListView.as_view(), name='maintenance_request_list'),

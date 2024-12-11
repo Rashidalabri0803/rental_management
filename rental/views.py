@@ -131,7 +131,7 @@ class UnitDeleteView(LoginRequiredMixin, DeleteView):
 
 class NoitificationListView(LoginRequiredMixin, ListView):
     model = Notifiction
-    template_name = 'rental/notifiction_list.html'
+    template_name = 'rental/notification_list.html'
     context_object_name = 'notifications'
 
     def get_queryset(self):
