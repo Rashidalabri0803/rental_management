@@ -10,7 +10,7 @@
       <tr class="table-dark">
         <th>اسم المبني</th>
         <th>الموقع</th>
-        <th>إجمالي الوحدات</th>
+        <th>عدد الوحدات</th>
         <th>الإجراءات</th>
       </tr>
     </thead>
@@ -19,7 +19,7 @@
         <tr>
           <td>{{ building.name }}</td>
           <td>{{ building.location }}</td>
-          <td>{{ building.units.count }}</td>
+          <td>{{ building.total_units }}</td>
           <td>
             <a href="{% url 'rental:edit_building' building.pk %}" class="btn btn-warning"><i class="fas fa-edit"></i>تعديل</a>
             <a href="{% url 'rental:delete_building' building.pk %}" class="btn btn-danger"><i class="fas fa-trash"></i>حذف</a>

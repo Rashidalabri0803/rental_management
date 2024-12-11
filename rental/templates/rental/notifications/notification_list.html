@@ -1,0 +1,28 @@
+{% extends 'rental/base.html' %}
+{% block title %} الإشعارات {% endblock %}
+{% block content %}
+<h1>الإشعارات</h1>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>الإشعار</th>
+            <th>الحالة</th>
+            <th>الإجراءات</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for notification in notifications %}
+        <tr>
+            <td>{{ notification.message }}</td>
+            <td>{{ notification.read|yesno:"مقروءة,غير مقروءة" }}</td>
+            <td>{{ notification.tenant.name }}</td>
+            <td>
+                {% if not notification.read %}
+                <a href="{% url 'rental:mark_notification_as_read' notification.id %}" class="btn btn-success btn-sm">تعليم كمقروء</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

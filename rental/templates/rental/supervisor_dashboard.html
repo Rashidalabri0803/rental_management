@@ -4,9 +4,38 @@
 
 {% block content %}
 <h1>مرحبا {{ request.user.username }}</h1>
-<h3>إحصائيات:</h3>
-<ul>
-    <li>إجمالي الوحدات: {{ units.count }}</li>
-    <li>إجمالي المستأجرين: {{ tenants.count }}</li>
-</ul>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">عدد المباني</h5>
+                <p class="card-text">{{ buildings.count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">عدد الوحدات</h5>
+                <p class="card-text">{{ units.count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">عدد المستأجرين</h5>
+                <p class="card-text">{{ tenants.count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">طلبات الصيانة المعلقة</h5>
+                <p class="card-text">{{ pending_maintenance.count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
