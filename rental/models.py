@@ -25,6 +25,12 @@ PAYMENT_METHOD_CHOICES = [
   ('maintenance', "بطاقة ائتمان"),
 ]
 
+NOTIFICTION_TYPE_CHOICES = [
+  ('payment_due', "إشعار مستحقات"),
+  ('maintenance_update', "تحديث صيانة"),
+  ('lease_update', "تحديث عقد"),
+]
+
 class User(AbstractUser):
   phone_number = models.CharField(
     max_length=15, 
@@ -61,6 +67,12 @@ class Building(models.Model):
   total_units = models.PositiveIntegerField(
     verbose_name="إجمالي الوحدات",
   )
+  address = models.CharField(
+    max_length=255,
+    verbose_name="عنوان المبني",
+    blank=True,
+    null=True,
+  )
   created_at = models.DateTimeField(
     auto_now_add=True,
     verbose_name="تاريخ الإضافة",
@@ -77,24 +89,6 @@ class Building(models.Model):
   def __str_(self):
     return self.name
 
-class SupervisorPermission(models.Model):
-  name = models.CharField(
-    max_length=50,
-    unique=True,
-    verbose_name="اسم الصلاحية",
-  )
-  description = models.TextField(
-    verbose_name="وصف الصلاحية",
-    blank=True,
-  )
-
-  class Meta:
-    verbose_name ="صلاحية المشرف"
-    verbose_name_plural ="صلاحيات المشرفين"
-
-  def __str_(self):
-    return self.name
-
 class Supervisor(models.Model):
   """يمثل المشرفين"""
   user = models.OneToOneField(
@@ -107,11 +101,6 @@ class Supervisor(models.Model):
     on_delete=models.CASCADE,
     related_name="supervisors",
     verbose_name="المبني"
-  )
-  permissions = models.ManyToManyField(
-    SupervisorPermission,
-    verbose_name="الصلاحيات",
-    blank=True,
   )
 
   class Meta:
@@ -139,7 +128,7 @@ class UnitType(models.Model):
 
   def __str_(self):
     return self.name
-    
+
 class Unit(models.Model): 
     """يمثل الوحدات السكنية أو التجارية في المبني"""
     building = models.ForeignKey(
@@ -181,6 +170,12 @@ class Unit(models.Model):
       blank=True,
       null=True,
       verbose_name="وصف الوحدة"
+    )
+    address = models.CharField(
+      max_length=255,
+      verbose_name="عنوان الوحدة",
+      blank=True,
+      null=True,
     )
 
     class Meta:
@@ -263,7 +258,18 @@ class Lease(models.Model):
     deposit = models.DecimalField(
       max_digits=10,
       decimal_places=2,
-      verbose_name="المقدم (ريال عماني)"
+      verbose_name="مقدم (ريال عماني)"
+    )
+    discount = models.DecimalField(
+      max_digits=10,
+      decimal_places=2,
+      verbose_name="الخصم (ريال عماني)"
+    )
+    status = models.CharField(
+      max_length=10,
+      choices=LEASE_STATUS_CHOICES,
+      default="active",
+      verbose_name="حالة العقد"
     )
     is_active = models.BooleanField(
       default=True,
@@ -312,6 +318,39 @@ class Payment(models.Model):
     def __str_(self):
         return f"دفعة {self.amount} للعقد {self.lease.contract_number}"
 
+class Notifiction(models.Model):
+  """يمثل الإشعارات"""
+  user = models.ForeignKey(
+      User,
+      on_delete=models.CASCADE,
+      related_name="notifications",
+      verbose_name="المستخدم"
+  )
+  message = models.TextField(
+      verbose_name="نص الإشعار"
+  )
+  type = models.CharField(
+      max_length=20,
+      choices=NOTIFICTION_TYPE_CHOICES,
+      verbose_name="نوع الإشعار"
+  )
+  created_at = models.DateTimeField(
+      auto_now_add=True,
+      verbose_name="تاريخ الإشعار"
+  )
+  read = models.BooleanField(
+      default=False,
+      verbose_name="تمت القراءة"
+  )
+
+  class Meta:
+      verbose_name = "إشعار"
+      verbose_name_plural = "الإشعارات"
+      ordering = ['-created_at']
+
+  def __str_(self):
+      return f"إشعار للمستخدم {self.user.username}"
+      
 class MaintenanceRequest(models.Model):
     """يمثل طلبات الصيانة"""
     unit = models.ForeignKey(
@@ -458,34 +497,6 @@ class SupportMessage(models.Model):
 
     def __str_(self):
         return f"رسالة من {self.sender.username} - {self.recipient.username}"
-
-class Notifiction(models.Model):
-    """يمثل الإشعارات"""
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="notifications",
-        verbose_name="المستخدم"
-    )
-    message = models.TextField(
-        verbose_name="نص التنبيه"
-    )
-    read = models.BooleanField(
-        default=False,
-        verbose_name="مقروءة"
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="تاريخ الإنشاء"
-    )
-
-    class Meta:
-        verbose_name = "تنبيه"
-        verbose_name_plural = "التنبيهات"
-        ordering = ['-created_at']
-
-    def __str_(self):
-        return f"تنبيه من {self.id} للمستخدم {self.user.username}"
 
 class MaintenanceReview(models.Model):
     maintenance_request = models.OneToOneField(

@@ -1,35 +1,33 @@
 from django.contrib import admin
-from .models import User, Building, Supervisor, SupervisorPermission, Unit, UnitType, Tenant, Lease, Payment, MaintenanceRequest, Invoice, ActivityLog, SupportMessage, Notifiction, MaintenanceReview
+from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'phone_number', 'email', 'is_superuser', 'is_tenant', 'is_staff')
+    list_display = ('username', 'phone_number', 'email', 'is_superuser', 'is_tenant', 'is_staff', 'is_active')
     list_filter = ('is_superuser', 'is_tenant', 'is_staff', 'is_active')
     search_fields = ('username', 'phone_number', 'email')
     ordering = ('username',)
+    fieldsets = (
+        (None, {'fields': ('username', 'password', 'phone_number', 'email')}),
+        ('Permissions', {'fields': ('is_superuser', 'is_tenant', 'is_staff', 'is_active')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+    )
+    readonly_fields = ('last_login', 'date_joined')
 
 @admin.register(Building)
 class BuildingAdmin(admin.ModelAdmin):
     list_display = ('name', 'location', 'total_units', 'created_at', 'updated_at')
-    search_fields = ('name', 'location')
+    search_fields = ('name', 'location', 'address')
+    list_filter = ('created_at',)
     ordering = ('name',)
     readonly_fields = ('created_at', 'updated_at')
-
-@admin.register(SupervisorPermission)
-class SupervisorPermissionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
-    search_fields = ('name',)
-    ordering = ('name',)
+    inlines = []
 
 @admin.register(Supervisor)
 class SupervisorAdmin(admin.ModelAdmin):
-    list_display = ('user', 'building', 'get_permissions')
+    list_display = ('user', 'building')
     search_fields = ('user__username', 'building__name')
     list_filter = ('building',)
-
-    def get_permissions(self, obj):
-        return ', '.join([perm.name for perm in obj.permissions.all()])
-    get_permissions.short_description = "الصلاحيات"
 
 @admin.register(UnitType)
 class UnitTypeAdmin(admin.ModelAdmin):
@@ -41,7 +39,7 @@ class UnitTypeAdmin(admin.ModelAdmin):
 class UnitAdmin(admin.ModelAdmin):
     list_display = ('unit_number', 'building', 'unit_type', 'floor_number', 'rent_price', 'status')
     list_filter = ('building', 'status', 'unit_type')
-    search_fields = ('unit_number', 'building__name')
+    search_fields = ('unit_number', 'building__name', 'address')
     ordering = ('unit_number',)
 
 @admin.register(Tenant)
@@ -49,56 +47,61 @@ class TenantAdmin(admin.ModelAdmin):
     list_display = ('user', 'tenant_type', 'national_id', 'company_name', 'address')
     list_filter = ('tenant_type',)
     search_fields = ('user__username', 'national_id', 'company_name')
+    ordering = ('user__username',)
 
 @admin.register(Lease)
 class LeaseAdmin(admin.ModelAdmin):
-    list_display = ('contract_number', 'unit', 'tenant', 'start_date', 'end_date', 'monthly_rent', 'is_active')
-    list_filter = ('is_active', 'start_date', 'end_date')
+    list_display = ('contract_number', 'unit', 'tenant', 'start_date', 'end_date', 'monthly_rent', 'status', 'is_active')
+    list_filter = ('status', 'is_active', 'start_date', 'end_date')
     search_fields = ('contract_number', 'unit__unit_number', 'tenant__user__username')
     ordering = ('-start_date',)
+    actions = ['mark_expired', 'terminate_lease']
+
+    def mark_expired(self, request, queryset):
+        expired_leases = queryset.filter(end_date__lt=date.today())
+        expired_leases.update(status='Expired', is_active=False)
+        self.message_user(request, f"{expired_leases.count()} عقد تم تحديده كمنتهي.")
+    mark_expired.short_description = "تحديد العقود المنتهية"
+
+    def terminate_lease(self, request, queryset):
+        queryset.update(is_active=False, status='suspended')
+        self.message_user(request, f"{queryset.count()} عقد تم إيقافه.")
+    terminate_lease.short_description = "إيقاف العقود المحددة"
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ('lease', 'date', 'amount', 'payment_method', 'notes')
     list_filter = ('payment_method', 'date')
     search_fields = ('lease__contract_number',)
-
-@admin.register(MaintenanceRequest)
-class MaintenanceRequestAdmin(admin.ModelAdmin):
-    list_display = ('unit', 'description', 'request_date', 'status', 'notes')
-    list_filter = ('status',)
-    search_fields = ('unit__unit_number', 'description')
-    ordering = ('-request_date',)
-
-@admin.register(Invoice)
-class InvoiceAdmin(admin.ModelAdmin):
-    list_display = ('invoice_number', 'lease', 'issue_date', 'due_date', 'total_amount', 'vat', 'paid')
-    list_filter = ('paid', 'issue_date', 'due_date')
-    search_fields = ('invoice_number', 'lease__contract_number')
-    ordering = ('-issue_date',)
-
-@admin.register(ActivityLog)
-class ActivityLogAdmin(admin.ModelAdmin):
-    list_display = ('user', 'action', 'timestamp', 'details')
-    search_fields = ('user__username', 'action', 'details')
-    ordering = ('-timestamp',)
-
-@admin.register(SupportMessage)
-class SupportMessageAdmin(admin.ModelAdmin):
-    list_display = ('sender', 'recipient', 'subject', 'sent_at', 'read')
-    list_filter = ('read', 'sent_at')
-    search_fields = ('sender__username', 'recipient__username', 'subject', 'message')
-    ordering = ('-sent_at',)
+    ordering = ('-date',)
 
 @admin.register(Notifiction)
 class NotifictionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'message', 'created_at', 'read')
-    list_filter = ('read', 'created_at')
+    list_display = ('user', 'message', 'type', 'created_at', 'read')
+    list_filter = ('type', 'read', 'created_at')
     search_fields = ('user__username', 'message')
     ordering = ('-created_at',)
+    actions = ['mark_as_read', 'delete_notifiction']
 
-@admin.register(MaintenanceReview)
-class MaintenanceReviewAdmin(admin.ModelAdmin):
-    list_display = ('maintenance_request', 'rating', 'feedback')
-    search_fields = ('maintenance_request__id', 'feedback')
-    ordering = ('maintenance_request__request_date',)
+    def mark_as_read(self, request, queryset):
+        updated_count = queryset.updaye(read=True)
+        self.message_user(request, f"{updated_count} إشعار تم تحديده كمقروءة.")
+    mark_as_read.short_description = "تحديد الإشعارات كمقروءة"
+
+    def delete_notifiction(self, request, queryset):
+        deleted_count = queryset.delete()[0]
+        self.message_user(request, f"{deleted_count} إشعار تم حذفه.")
+    delete_notifiction.short_description = "حذف الإشعارات المحددة"
+
+    @admin.register(MaintenanceRequest)
+    class MaintenanceRequestAdmin(admin.ModelAdmin):
+        list_display = ('unit', 'description', 'request_date', 'status', 'notes')
+        list_filter = ('status',)
+        search_fields = ('unit__unit_number', 'description')
+        ordering = ('-request_date',)
+        actions = ['mark_completed']
+
+        def mark_completed(self, request, queryset):
+            updated_count = queryset.update(status='completed')
+            self.message_user(request, f"{updated_count} طلب صيانة تم تحديده كمكتمل.")
+        mark_completed.short_description = "تحديد طلبات الصيانة كمكتملة"

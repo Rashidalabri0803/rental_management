@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from .models import Building,Unit,Tenant,Lease,Payment,MaintenanceRequest,Invoice,SupportMessage,Notifiction
-from .forms import BuildingForm,UnitForm,TenantForm,LeaseForm,PaymentForm,MaintenanceRequestForm,InvoiceForm,SuppMessageForm
+from django.utils.timezone import now
+from datetime import date
+from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest
+from .forms import UserForm, BuildingForm, SupervisorForm, UnitForm, UnitTypeForm, TenantForm, LeaseForm, PaymentForm, NotifictionForm, MaintenanceRequestForm
 
 def login_view(request):
     if request.method == 'POST':
