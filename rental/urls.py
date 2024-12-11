@@ -7,8 +7,8 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 
-    path('supervisor/dashboard/', views.supervisor_dashboard, name='supervisor_dashboard'),
-    path('tenant/dashboard/', views.tenant_dashboard, name='tenant_dashboard'),
+    path('supervisor/dashboard/', views.SupervisorDashboardView, name='supervisor_dashboard'),
+    path('tenant/dashboard/', views.TenantDashboardView, name='tenant_dashboard'),
 
     path('buildings/', views.BuildingListView.as_view(), name='building_list'),
     path('buildings/add/', views.BuildingCreateView.as_view(), name='add_building'),
