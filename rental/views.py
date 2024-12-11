@@ -1,19 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from django.contrib import messages
-from django.utils.timezone import now
 from datetime import date
 from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest
 from .forms import UserForm, BuildingForm, SupervisorForm, UnitForm, UnitTypeForm, TenantForm, LeaseForm, PaymentForm, NotifictionForm, MaintenanceRequestForm
-
+from django.contrib.auth import authenticate, login, logout
 def login_view(request):
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
         password = request.POST.get('password')
-        user = authenticate(request, phone_number=phone_number, password=password)
+        user = authenticate(request, username=phone_number, password=password)
         if user:
             login(request, user)
             if user.is_superuser:
@@ -26,42 +24,63 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
+    messages.success(request, "تم تسجيل الخروج بنجاح.")
     return redirect('rental:login')
 
-@login_required
-def supervisor_dashboard(request):
-    buildings = Building.objects.all()
-    units = Unit.objects.all()
-    tenants = Tenant.objects.all()
-    active_leases = Lease.objects.filter(is_active=True)
-    pending_maintenance = MaintenanceRequest.objects.filter(status='pending')
-    return render(request, 'rental/supervisor_dashboard.html', {'buildings': buildings, 'units': units, 'tenants': tenants, 'active_leases': active_leases, 'pending_maintenance': pending_maintenance})
+class SupervisorDashboardView(LoginRequiredMixin, ListView):
+    template_name = 'rental/supervisor_dashboard.html'
+    context_object_name = 'dashboard_data'
 
-@login_required
-def tenant_dashboard(request):
-    tenant = get_object_or_404(Tenant, user=request.user)
-    leases = Lease.objects.filter(tenant=tenant)
-    maintenance_requests = MaintenanceRequest.objects.filter(unit__lease__tenant=tenant)
-    payments = Payment.objects.filter(lease__tenant=tenant)
-    notifications = Notifiction.objects.filter(user=request.user, read=False)
-    return render(request, 'rental/tenant_dashboard.html', {'tenant': tenant, 'leases': leases, 'maintenance_requests': maintenance_requests, 'payments': payments, 'notifications' : notifications})
+    def get_queryset(self):
+        return None
 
-class BuildingListView(ListView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['buildings'] = Building.objects.all()
+        context['units'] = Unit.objects.all()
+        context['tenants'] = Tenant.objects.all()
+        context['active_leases'] = Lease.objects.filter(is_active=True)
+        context['pending_maintenance'] = MaintenanceRequest.objects.filter(status='pending')
+        return context
+
+class TenantDashboardView(LoginRequiredMixin, ListView):
+    template_name = 'rental/tenant_dashboard.html'
+    context_object_name = 'dashboard_data'
+
+    def get_queryset(self):
+        return None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tenant = get_object_or_404(Tenant, user=self.request.user)
+        context['leases'] = Lease.objects.filter(tenant=tenant)
+        context['maintenance_requests'] = MaintenanceRequest.objects.filter(unit__lease__tenant=tenant)
+        context['payments'] = Payment.objects.filter(lease__tenant=tenant)
+        context['notifications'] = Notifiction.objects.filter(user=self.request.user, read=False)
+        return context
+
+class BuildingListView(LoginRequiredMixin, ListView):
     model = Building
     template_name = 'rental/building_list.html'
     context_object_name = 'buildings'
 
-class BuildingCreateView(CreateView):
+class BuildingCreateView(LoginRequiredMixin, CreateView):
     model = Building
     form_class = BuildingForm
     template_name = 'rental/building_form.html'
     success_url = reverse_lazy('rental:building_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, "تمت إضافة المبني بنجاح")
+        return super().form_valid(form)
 
 class BuildingUpdateView(UpdateView):
     model = Building
     form_class = BuildingForm
     template_name = 'rental/building_form.html'
     success_url = reverse_lazy('rental:building_list')
+
+    
 
 class BuildingDeleteView(DeleteView):
     model = Building
