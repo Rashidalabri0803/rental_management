@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog
+from .models import User, Building, Unit, Tenant, Lease, Notifiction, MaintenanceRequest, Invoice, ActivityLog, Payment
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -9,8 +9,8 @@ class UserAdmin(admin.ModelAdmin):
     ordering = ('username',)
     fieldsets = (
         (None, {'fields': ('username', 'password', 'phone_number', 'email')}),
-        ('Permissions', {'fields': ('is_superuser', 'is_tenant', 'is_active')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        ('الأدوار', {'fields': ('is_superuser', 'is_tenant', 'is_active')}),
+        ('التواريخ الهامة', {'fields': ('last_login', 'date_joined')}),
     )
     readonly_fields = ('last_login', 'date_joined')
 
@@ -37,18 +37,6 @@ class BuildingAdmin(admin.ModelAdmin):
     def get_available_units(self, obj):
         return obj.get_available_units()
     get_available_units.short_description = "عدد الوحدات المتاحة"
-    
-@admin.register(Supervisor)
-class SupervisorAdmin(admin.ModelAdmin):
-    list_display = ('user', 'building')
-    search_fields = ('user__username', 'building__name')
-    list_filter = ('building',)
-
-@admin.register(UnitType)
-class UnitTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
-    search_fields = ('name',)
-    ordering = ('name',)
 
 @admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):
@@ -56,11 +44,11 @@ class UnitAdmin(admin.ModelAdmin):
     list_filter = ('building', 'status', 'unit_type')
     search_fields = ('unit_number', 'building__name', 'status')
     ordering = ('unit_number',)
-
+    
 class LeaseInline(admin.TabularInline):
     model = Lease
     extra = 0
-    fields = ('contract_number', 'unit', 'start_date', 'end_date', 'monthly_rent', 'status')
+    fields = ('contract_number', 'unit', 'start_date', 'end_date', 'status')
     readonly_fields = ('contract_number', 'unit', 'status')
     can_delete = False
     
@@ -80,41 +68,33 @@ class LeaseAdmin(admin.ModelAdmin):
     ordering = ('-start_date',)
     actions = ['mark_expired', 'terminate_lease']
 
+    def get_remaining_days(self, obj):
+        return obj.get_remaining_days()
+    get_remaining_days.short_description = "أيام المتبقية"
+
     def mark_expired(self, request, queryset):
         expired_leases = queryset.filter(end_date__lt=date.today())
         expired_leases.update(status='Expired', is_active=False)
         self.message_user(request, f"{expired_leases.count()} عقد تم تحديده كمنتهي.")
     mark_expired.short_description = "تحديد العقود المنتهية"
 
-    def terminate_lease(self, request, queryset):
-        queryset.update(is_active=False, status='suspended')
-        self.message_user(request, f"{queryset.count()} عقد تم إيقافه.")
-    terminate_lease.short_description = "إيقاف العقود المحددة"
-
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('lease', 'date', 'amount', 'payment_method', 'notes')
-    list_filter = ('payment_method', 'date')
-    search_fields = ('lease__contract_number', 'amount')
-    ordering = ('-date',)
+    def extend_lease(self, request, queryset):
+        extended_count = queryset.update(end_date=date.today() + timedelta(days=30))
+        self.message_user(request, f"{extended_count} عقد تم تمديده لمدة 30 يوماً.")
+    extend_lease.short_description = "تمديد العقود المحددة"
 
 @admin.register(Notifiction)
 class NotifictionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'message', 'type', 'created_at', 'read')
-    list_filter = ('type', 'read', 'created_at')
+    list_display = ('user', 'message', 'created_at', 'read')
+    list_filter = ('read', 'created_at')
     search_fields = ('user__username', 'message')
     ordering = ('-created_at',)
-    actions = ['mark_as_read', 'delete_notifiction']
+    actions = ['mark_as_read']
 
     def mark_as_read(self, request, queryset):
         updated_count = queryset.updaye(read=True)
         self.message_user(request, f"{updated_count} إشعار تم تحديده كمقروءة.")
     mark_as_read.short_description = "تحديد الإشعارات كمقروءة"
-
-    def delete_notifiction(self, request, queryset):
-        deleted_count = queryset.delete()[0]
-        self.message_user(request, f"{deleted_count} إشعار تم حذفه.")
-    delete_notifiction.short_description = "حذف الإشعارات المحددة"
 
 @admin.register(MaintenanceRequest)
 class MaintenanceRequestAdmin(admin.ModelAdmin):
@@ -122,17 +102,12 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
     list_filter = ('status', 'request_date')
     search_fields = ('unit__unit_number', 'description', 'notes')
     ordering = ('-request_date',)
-    actions = ['mark_completed', 'mark_as_in_progress']
+    actions = ['mark_completed']
 
     def mark_as_completed(self, request, queryset):
         updated_count = queryset.update(status='completed')
         self.message_user(request, f"{updated_count} طلب تم تحديده كمكتمل.")
     mark_as_completed.short_description = "تحديد الطلبات المكتملة"
-
-    def mark_as_in_progress(self, request, queryset):
-        updated_count = queryset.update(status='in progress')
-        self.message_user(request, f"{updated_count} طلب تم تحديده كتحت للتنفيذ.")
-    mark_as_in_progress.short_description = "تحديد الطلبات كتحت التنفيذ"
 
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
@@ -140,17 +115,13 @@ class InvoiceAdmin(admin.ModelAdmin):
     list_filter = ('status', 'issue_date', 'due_date')
     search_fields = ('invoice_number', 'lease__contract_number', 'total_amount')
     ordering = ('-issue_date',)
-    actions = ['mark_as_paid', 'mark_as_unpaid']
+    actions = ['mark_as_paid']
 
     def mark_as_paid(self, request, queryset):
         updated_count = queryset.update(status='paid')
         self.message_user(request, f"{updated_count} فاتورة تم تحديده كمدفوعة.")
     mark_as_paid.short_description = "تحديد الفواتير المدفوعة"
 
-    def mark_as_unpaid(self, request, queryset):
-        updated_count = queryset.update(status='unpaid')
-        self.message_user(request, f"{updated_count} فاتورة تم تحديده كغير مدفوعة.")
-    mark_as_unpaid.short_description = "تحديد الفواتير غير مدفوعة"
 
 @admin.register(ActivityLog)
 class ActivityLogAdmin(admin.ModelAdmin):
@@ -158,3 +129,23 @@ class ActivityLogAdmin(admin.ModelAdmin):
     list_filter = ('timestamp',)
     search_fields = ('user__username', 'action', 'details')
     ordering = ('-timestamp',)
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('lease', 'payment_date', 'amount', 'payment_method', 'notes')
+    list_filter = ('payment_method', 'payment_date')
+    search_fields = ('lease__contract_number', 'amount', 'notes')
+    ordering = ('-payment_date',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        elif request.user.is_tenant:
+            leases = Lease.objects.filter(tenant__user=request.user)
+            return qs.filter(lease__tenant=leases)
+        return qs.none()
+            
+    def mark_as_paid(self, request, queryset):
+        updated_count = queryset.update(status='paid')
+        self.message_user(request, f"{updated_count} دفعة تم تحديده كمدفوعة.")

@@ -1,55 +1,43 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog
+from .models import User, Building, Unit, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog, Tenant
 from datetime import date
-
-class UserForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['username', 'phone_number', 'email', 'is_supervisor', 'is_tenant', 'is_active']
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control', 'plceholder': 'اسم المستخدم'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'plceholder': 'رقم الهاتف'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'plceholder': 'البريد الإلكتروني'}),
-            'is_supervisor': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_tenant': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
-
-    def clean_phone_number(self):
-        phone_number = self.cleaned_data.get('phone_number')
-        if not phone_number.isdigit() or len(phone_number) != 10:
-            raise ValidationError("يجب أن يكون رقم الهاتف صحيحًا ومكون من 10 أرقام")
-        return phone_number
 
 class BuildingForm(forms.ModelForm):
     class Meta:
         model = Building
-        fields = ['name', 'location', 'address', 'total_units']
+        fields = ['name']
+
+class ActivityLogForm(forms.ModelForm):
+    class Meta:
+        model = ActivityLog
+        fields = ['user', 'action', 'timestamp', 'details']
+        
+class TenantRegistrationForm(forms.ModelForm):
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'تأكيد كلمة المرور'}),
+        label='تأكيد كلمة المرور',
+    )
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'phone_number', 'password']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المبني'}),
-            'location': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'موقع المبني'}),
-            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'عنوان المبني'}),
-            'total_units': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'عدد الوحدات'}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المستخدم'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'البريد الإلكتروني'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الهاتف'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'كلمة المرور'}),
         }
 
-class SupervisorForm(forms.ModelForm):
-    class Meta:
-        model = Supervisor
-        fields = ['user', 'building']
-        widgets = {
-            'user': forms.Select(attrs={'class': 'form-control'}),
-            'building': forms.Select(attrs={'class': 'form-control'}),
-        }
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
 
-class UnitTypeForm(forms.ModelForm):
-    class Meta:
-        model = UnitType
-        fields = ['name', 'description']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم النوع'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'وصف النوع'}),
-        }
+        if password != confirm_password:
+            raise ValidationError('كلمة المرور غير متطابقة')
+
+        return cleaned_data
 
 class UnitForm(forms.ModelForm):
     class Meta:
@@ -58,9 +46,9 @@ class UnitForm(forms.ModelForm):
         widgets = {
             'unit_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الوحدة'}),
             'building': forms.Select(attrs={'class': 'form-control'}),
-            'unit_type': forms.Select(attrs={'class': 'form-control'}),
+            'unit_type': forms.Select(attrs={'class': 'form-control', 'placeholder': 'نوع الوحدة'}),
             'floor_number': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'رقم الطابق'}),
-            'size': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المساحة'}),
+            'size': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المساحة (متر مربع)'}),
             'rent_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'سعر الإيجار'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'وصف الوحدة'}),
@@ -71,19 +59,7 @@ class UnitForm(forms.ModelForm):
         if rent_price <= 0:
             raise ValidationError("سعر الإيجار يجب أن يكون أكبر من صفر")
         return rent_price
-
-class TenantForm(forms.ModelForm):
-    class Meta:
-        model = Tenant
-        fields = ['user', 'tenant_type', 'national_id', 'company_name', 'notes']
-        widgets = {
-            'user': forms.Select(attrs={'class': 'form-control'}),
-            'tenant_type': forms.Select(attrs={'class': 'form-control'}),
-            'national_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم البطاقة المدنية'}),
-            'company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم الشركة'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات إضافية'}),
-        }
-
+        
 class LeaseForm(forms.ModelForm):
     class Meta:
         model = Lease
@@ -108,45 +84,41 @@ class LeaseForm(forms.ModelForm):
                 raise forms.ValidationError("تاريخ البداية يجب أن يكون قبل تاريخ النهاية.")
             return cleaned_data
 
+        def clean_monthly_rent(self):
+            monthly_rent = self.cleaned_data.get('monthly_rent')
+            if monthly_rent <= 0:
+                raise forms.ValidationError("الإيجار الشهري يجب أن يكون أكبر من صفر")
+            return monthly_rent
+
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
-        fields = ['lease', 'date', 'amount', 'payment_method', 'notes']
+        fields = ['lease', 'payment_date', 'amount', 'payment_method', 'notes']
         widgets = {
             'lease': forms.Select(attrs={'class': 'form-control'}),
-            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المبلغ'}),
+            'payment_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المبلغ المدفوع'}),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات إضافية'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات'}),
         }
 
-class NotifictionForm(forms.ModelForm):
-    class Meta:
-        model = Notifiction
-        fields = ['user', 'message', 'type', 'read']
-        widgets = {
-            'user': forms.Select(attrs={'class': 'form-control'}),
-            'message': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'الرسالة'}),
-            'type': forms.Select(attrs={'class': 'form-control'}),
-            'read': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            }
-
-class MaintenanceRequestForm(forms.ModelForm):
+class MainenanceRequestForm(forms.ModelForm):
     class Meta:
         model = MaintenanceRequest
         fields = ['unit', 'description', 'status', 'notes']
         widgets = {
             'unit': forms.Select(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'وصف الصيانة'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'وصف الطلب'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات إضافية'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات'}),
         }
 
-        def clean_description(self):
-            description = self.cleaned_data.get('description')
-            if len(description) < 10:
-                raise forms.ValidationError("يجب أن يكون وصف الصيانة أكبر من 10 حرفًا")
-
+    def clean_description(self):
+        description = self.cleaned_data.get('description')
+        if len(description) < 10:
+            raise forms.ValidationError("وصف الطلب يجب أن يكون أقل من 10 حرف.")
+        return description
+        
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
@@ -155,7 +127,7 @@ class InvoiceForm(forms.ModelForm):
             'invoice_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'رقم الفاتورة'}),
             'lease': forms.Select(attrs={'class': 'form-control'}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'total_amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المبلغ الكلي'}),
+            'total_amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المبلغ الإجمالي'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
 
@@ -165,12 +137,7 @@ class InvoiceForm(forms.ModelForm):
             raise forms.ValidationError("تاريخ الاستحقاق يجب أن يكون في المستقبل")
         return due_date
 
-class ActivityLogForm(forms.ModelForm):
+class TenantForm(forms.ModelForm):
     class Meta:
-        model = ActivityLog
-        fields = ['user', 'action', 'details']
-        widgets = {
-            'user': forms.Select(attrs={'class': 'form-control'}),
-            'action': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'وصف النشاط'}),
-            'details': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'تفاصيل إضافة'}),
-        }
+        model = Tenant
+        fields = ['user', 'building', 'unit', 'status']

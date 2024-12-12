@@ -1,64 +1,64 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from datetime import date
-from .models import User, Building, Supervisor, Unit, UnitType, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog
-from .forms import UserForm, BuildingForm, SupervisorForm, UnitForm, UnitTypeForm, TenantForm, LeaseForm, PaymentForm, NotifictionForm, MaintenanceRequestForm, InvoiceForm, ActivityLogForm
+from .models import Building, Unit, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog, User
+from .forms import BuildingForm, TenantRegistrationForm, UnitForm, LeaseForm, PaymentForm, InvoiceForm, MainenanceRequestForm, ActivityLogForm, TenantForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-def login_view(request):
-    if request.method == 'POST':
-        phone_number = request.POST.get('phone_number')
-        password = request.POST.get('password')
-        user = authenticate(request, username=phone_number, password=password)
-        if user:
-            login(request, user)
-            if user.is_superuser:
-                return redirect('rental:supervisor_dashboard')
-            elif user.is_tenant:
-                return redirect('rental:tenant_dashboard')
-        else:
-            messages.error(request, "بيانات تسجيل الدخول غير صحيحه.")
-    return render(request, 'rental/login.html')
+class TenantRegistrationView(CreateView):
+    model = User
+    form_class = TenantRegistrationForm
+    template_name = 'rental/tenant_registration.html'
+    success_url = reverse_lazy('rental:login')
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.is_tenant = True
+        user.set_password(form.cleaned_data['password'])
+        user.save()
+        messages.success(self.request, "تم تسجيل المستأجر بنجاح. يمكنك تسجيل الدخول الآن.")
+        return super().form_valid(form)
 
 def logout_view(request):
     logout(request)
     messages.success(request, "تم تسجيل الخروج بنجاح.")
     return redirect('rental:login')
 
-class SupervisorDashboardView(LoginRequiredMixin, ListView):
+class SupervisorDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Lease
     template_name = 'rental/supervisor_dashboard.html'
-    context_object_name = 'dashboard_data'
+    context_object_name = 'leases'
 
-    def get_queryset(self):
-        return None
+    def test_func(self):
+        return self.request.user.is_superuser
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['buildings'] = Building.objects.all()
         context['units'] = Unit.objects.all()
-        context['tenants'] = Tenant.objects.all()
         context['active_leases'] = Lease.objects.filter(is_active=True)
         context['pending_maintenance'] = MaintenanceRequest.objects.filter(status='pending')
         return context
 
-class TenantDashboardView(LoginRequiredMixin, ListView):
+class TenantDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Lease
     template_name = 'rental/tenant_dashboard.html'
-    context_object_name = 'dashboard_data'
+    context_object_name = 'leases'
+
+    def test_func(self):
+        return self.request.user.is_tenant
 
     def get_queryset(self):
-        return None
+        return Lease.objects.filter(tenant__user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        tenant = get_object_or_404(Tenant, user=self.request.user)
-        context['leases'] = Lease.objects.filter(tenant=tenant)
-        context['maintenance_requests'] = MaintenanceRequest.objects.filter(unit__lease__tenant=tenant)
-        context['payments'] = Payment.objects.filter(lease__tenant=tenant)
-        context['notifications'] = Notifiction.objects.filter(user=self.request.user, read=False)
+        context['invoices'] = Invoice.objects.filter(lease__tenant__user=self.request.user)
+        context['maintenance_requests'] = MaintenanceRequest.objects.filter(unit__lease__tenant__user=self.request.user)
         return context
 
 class BuildingListView(LoginRequiredMixin, ListView):
@@ -161,7 +161,7 @@ class MaintenanceRquestListView(LoginRequiredMixin, ListView):
 
 class MaintenanceRquestCreateView(LoginRequiredMixin, CreateView):
     model = MaintenanceRequest
-    form_class = MaintenanceRequestForm
+    form_class = MainenanceRequestForm
     template_name = 'rental/maintenance_request_form.html'
     success_url = reverse_lazy('rental:maintenance_request_list')
 
@@ -171,7 +171,7 @@ class MaintenanceRquestCreateView(LoginRequiredMixin, CreateView):
 
 class MaintenanceRquestUpdateView(LoginRequiredMixin, UpdateView):
     model = MaintenanceRequest
-    form_class = MaintenanceRequestForm
+    form_class = MainenanceRequestForm
     template_name = 'rental/maintenance_request_form.html'
     success_url = reverse_lazy('rental:maintenance_request_list')
 
@@ -180,7 +180,7 @@ class MaintenanceRquestUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 class MaintenanceRquestDeleteView(LoginRequiredMixin, DeleteView):
-    model = MaintenanceRequest
+    model = MainenanceRequestForm
     template_name = 'rental/maintenance_request_confirm_delete.html'
     success_url = reverse_lazy('rental:maintenance_request_list')
 
