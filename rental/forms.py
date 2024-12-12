@@ -11,7 +11,7 @@ class BuildingForm(forms.ModelForm):
 class ActivityLogForm(forms.ModelForm):
     class Meta:
         model = ActivityLog
-        fields = ['user', 'action', 'timestamp', 'details']
+        fields = ['user', 'action',  'details']
         
 class TenantRegistrationForm(forms.ModelForm):
     confirm_password = forms.CharField(
@@ -93,10 +93,10 @@ class LeaseForm(forms.ModelForm):
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
-        fields = ['lease', 'payment_date', 'amount', 'payment_method', 'notes']
+        fields = ['lease',  'amount', 'payment_method', 'notes']
         widgets = {
             'lease': forms.Select(attrs={'class': 'form-control'}),
-            'payment_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+
             'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المبلغ المدفوع'}),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات'}),
@@ -140,4 +140,4 @@ class InvoiceForm(forms.ModelForm):
 class TenantForm(forms.ModelForm):
     class Meta:
         model = Tenant
-        fields = ['user', 'building', 'unit', 'status']
+        fields = ['user', 'national_id', 'company_name', 'address']

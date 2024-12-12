@@ -439,7 +439,7 @@ class Payment(models.Model):
     class Meta:
         verbose_name = "دفعة"
         verbose_name_plural = "الدفعات"
-        ordering = ['-date']
+        ordering = ['-payment_date']
 
     def __str_(self):
         return f"مدفوعات العقد {self.lease.contract_number} - {self.amount} ريال عماني"

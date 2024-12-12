@@ -125,15 +125,15 @@ class InvoiceAdmin(admin.ModelAdmin):
 
 @admin.register(ActivityLog)
 class ActivityLogAdmin(admin.ModelAdmin):
-    list_display = ('user', 'action', 'timestamp', 'details')
+    list_display = ('user', 'action', 'details')
     list_filter = ('timestamp',)
     search_fields = ('user__username', 'action', 'details')
-    ordering = ('-timestamp',)
+    #ordering = ('-timestamp',)
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('lease', 'payment_date', 'amount', 'payment_method', 'notes')
-    list_filter = ('payment_method', 'payment_date')
+    list_display = ('lease', 'amount', 'payment_method', 'notes')
+    list_filter = ('payment_method',)
     search_fields = ('lease__contract_number', 'amount', 'notes')
     ordering = ('-payment_date',)
 
