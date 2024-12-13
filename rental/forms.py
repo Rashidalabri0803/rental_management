@@ -1,22 +1,12 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import User, Building, Unit, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog, Tenant
+from .models import User, Building, Unit, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice
 from datetime import date
 
-class BuildingForm(forms.ModelForm):
-    class Meta:
-        model = Building
-        fields = ['name']
-
-class ActivityLogForm(forms.ModelForm):
-    class Meta:
-        model = ActivityLog
-        fields = ['user', 'action',  'details']
-        
 class TenantRegistrationForm(forms.ModelForm):
     confirm_password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'تأكيد كلمة المرور'}),
-        label='تأكيد كلمة المرور',
+        label="تأكيد كلمة المرور"
     )
 
     class Meta:
@@ -38,6 +28,19 @@ class TenantRegistrationForm(forms.ModelForm):
             raise ValidationError('كلمة المرور غير متطابقة')
 
         return cleaned_data
+
+class BuildingForm(forms.ModelForm):
+    class Meta:
+        model = Building
+        fields = ['name', 'location', 'total_units', 'address']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'اسم المبني'}),
+            'location': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'موقع المبني'}),
+            'building': forms.Select(attrs={'class': 'form-control'}),
+            'unit_type': forms.Select(attrs={'class': 'form-control', 'placeholder': 'نوع الوحدة'}),
+            'total_units': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'إجمالي الوحدات'}),
+            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'عنوان المبني'}),
+        }
 
 class UnitForm(forms.ModelForm):
     class Meta:
@@ -93,13 +96,12 @@ class LeaseForm(forms.ModelForm):
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
-        fields = ['lease',  'amount', 'payment_method', 'notes']
+        fields = ['lease', 'amount', 'payment_method', 'notes']
         widgets = {
             'lease': forms.Select(attrs={'class': 'form-control'}),
-
             'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'المبلغ المدفوع'}),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'ملاحظات إضافية'}),
         }
 
 class MainenanceRequestForm(forms.ModelForm):
@@ -136,8 +138,3 @@ class InvoiceForm(forms.ModelForm):
         if due_date < date.today():
             raise forms.ValidationError("تاريخ الاستحقاق يجب أن يكون في المستقبل")
         return due_date
-
-class TenantForm(forms.ModelForm):
-    class Meta:
-        model = Tenant
-        fields = ['user', 'national_id', 'company_name', 'address']

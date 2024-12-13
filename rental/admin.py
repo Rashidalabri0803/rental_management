@@ -124,10 +124,10 @@ class InvoiceAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('lease', 'payment_date', 'amount', 'payment_method', 'notes')
-    list_filter = ('payment_method', 'payment_date')
+    list_display = ('lease', 'amount', 'payment_method', 'notes')
+    list_filter = ('payment_method',)
     search_fields = ('lease__contract_number', 'amount')
-    ordering = ('-payment_date',)
+    #ordering = ('-payment_date',)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

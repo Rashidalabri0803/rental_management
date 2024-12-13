@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailedView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from datetime import date
 from .models import User, Building, Unit, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog
-from .forms import BuildingForm, TenantRegistrationForm, UnitForm, LeaseForm, PaymentForm, InvoiceForm, MainenanceRequestForm, ActivityLogForm, TenantForm
+from .forms import BuildingForm, TenantRegistrationForm, UnitForm, LeaseForm, PaymentForm, InvoiceForm, MainenanceRequestForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
@@ -22,11 +22,6 @@ class TenantRegistrationView(CreateView):
         user.save()
         messages.success(self.request, "تم تسجيل المستأجر بنجاح. يمكنك تسجيل الدخول الآن.")
         return super().form_valid(form)
-
-def logout_view(request):
-    logout(request)
-    messages.success(request, "تم تسجيل الخروج بنجاح.")
-    return redirect('rental:login')
 
 class SupervisorDashboardView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Lease
@@ -230,48 +225,8 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
         messages.success(self.request, "تم حذف فاتورة بنجاح")
         return super().delete(request, *args, **kwargs)
 
-class ActivityLogListView(LoginRequiredMixin, ListView):
-    model = ActivityLog
-    template_name = 'rental/activity_log_list.html'
-    context_object_name = 'activity_logs'
-    ordering = ['-timestamp']
 
-    def get_queryset(self):
-        if self.request.user.is_superuser:
-            return ActivityLog.objects.all()
-        return ActivityLog.objects.filter(user=self.request.user)
-
-class ActivityLogCreateView(LoginRequiredMixin, CreateView):
-    model = ActivityLog
-    form_class = ActivityLogForm
-    template_name = 'rental/activity_log_form.html'
-    success_url = reverse_lazy('rental:activity_log_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, "تم إضافة سجل النشاط بنجاح")
-        return super().form_valid(form)
     
-class TenantListView(ListView):
-    model = Tenant
-    template_name = 'rental/tenant_list.html'
-    context_object_name = 'tenants'
-
-class TenantCreateView(CreateView):
-    model = Tenant
-    form_class = TenantForm
-    template_name = 'rental/tenant_form.html'
-    success_url = reverse_lazy('rental:tenant_list')
-
-class TenantUpdateView(UpdateView):
-    model = Tenant
-    form_class = TenantForm
-    template_name = 'rental/tenant_form.html'
-    success_url = reverse_lazy('rental:tenant_list')
-
-class TenantDeleteView(DeleteView):
-    model = Tenant
-    template_name = 'rental/tenant_confirm_delete.html'
-    success_url = reverse_lazy('rental:tenant_list')
 
 class LeaseListView(ListView):
     model = Lease
