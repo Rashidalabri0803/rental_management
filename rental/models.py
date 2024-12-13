@@ -1,45 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from datetime import date, timedelta
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-TENANT_TYPE_CHOICES = [
-  ('Individual', "شخصي"),
-  ('Company', "شركة"),
-]
-STATUS_CHOICES = [
-    ('pending', "قيد الانتظار"),
-    ('in_progress', "تحت التنفيذ"),
-    ('completed', "مكتملة"),
-    ('rejected', "مرفوضة"),
-  ]
-UNIT_STATUS_CHOICES = [
-  ('available', "متاحة"),
-  ('rented', "مؤجرة"),
-  ('maintenance', "تحت الصيانة"),
-]
-
-LEASE_STATUS_CHOICES = [
-  ('active', "نشط"),
-  ('expired', "منتهي"),
-  ('suspended', "معلق"),
-]
-
-PAYMENT_METHOD_CHOICES = [
-  ('cash', "نقداً"),
-  ('bank_transfer', "تحويل بنكي"),
-  ('maintenance', "بطاقة ائتمان"),
-]
-
-NOTIFICTION_TYPE_CHOICES = [
-  ('payment_due', "إشعار مستحقات"),
-  ('maintenance_update', "تحديث صيانة"),
-  ('lease_update', "تحديث عقد"),
-]
 
 class User(AbstractUser):
   phone_number = models.CharField(
@@ -135,7 +101,11 @@ class Unit(models.Model):
   )
   status = models.CharField(
     max_length=15,
-    choices=UNIT_STATUS_CHOICES,
+    choices=[
+      ('available', "متاحة"),
+      ('rented', "مؤجرة"),
+      ('maintenance', "تحت الصيانة"),
+    ],
     default="available",
     verbose_name="حالة الوحدة"
   )
@@ -193,7 +163,11 @@ class Lease(models.Model):
   )
   status = models.CharField(
     max_length=10,
-    choices=LEASE_STATUS_CHOICES,
+    choices=[
+      ('active', "نشط"),
+      ('expired', "منتهي"),
+      ('suspended', "معلق"),
+    ],
     default="active",
     verbose_name="حالة العقد"
   )
@@ -226,7 +200,10 @@ class Tenant(models.Model):
   )
   tenant_type = models.CharField(
     max_length=10,
-    choices=TENANT_TYPE_CHOICES,
+    choices=[
+      ('individual', "شخصي"),
+      ('company', "شركة"),
+    ],
     verbose_name="نوع المستأجر"
   )
   national_id = models.CharField(
@@ -295,6 +272,12 @@ def create_notifiction_on_lease(sender, instance, created, **kwargs):
 
 class MaintenanceRequest(models.Model):
   """يمثل طلبات الصيانة"""
+  STATUS_CHOICES = [
+    ('pending', "قيد الانتظار"),
+    ('in_progress', "تحت التفيذ"),
+    ('completed', "مكتملة"),
+    ('rejected', "مرفوضة"),
+  ]
   unit = models.ForeignKey(
     Unit,
     on_delete=models.CASCADE,
@@ -355,7 +338,7 @@ class Invoice(models.Model):
   total_amount = models.DecimalField(
     max_digits=10,
     decimal_places=2,
-    verbose_name="إجمالي المبلغ (ريال عماني)"
+    verbose_name="المبلغ الإجمالي (ريال عماني)"
   )
   status = models.CharField(
     max_length=10,
@@ -427,7 +410,11 @@ class Payment(models.Model):
     )
     payment_method = models.CharField(
       max_length=20,
-      choices=PAYMENT_METHOD_CHOICES,
+      choices=[
+        ('cash', "كاش"),
+        ('credit_card', "بطاقة الائتمان"),
+        ('bank_transfer', "تحويل بنكي"),
+      ],
       verbose_name="طريقة الدفع"
     )
     notes = models.TextField(
@@ -437,10 +424,9 @@ class Payment(models.Model):
     )
 
     class Meta:
-        verbose_name = "دفعة"
-        verbose_name_plural = "الدفعات"
+        verbose_name = "مدفوعات"
+        verbose_name_plural = "المدفوعات"
         ordering = ['-payment_date']
 
     def __str_(self):
         return f"مدفوعات العقد {self.lease.contract_number} - {self.amount} ريال عماني"
-      

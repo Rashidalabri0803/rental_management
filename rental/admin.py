@@ -62,11 +62,11 @@ class TenantAdmin(admin.ModelAdmin):
 
 @admin.register(Lease)
 class LeaseAdmin(admin.ModelAdmin):
-    list_display = ('contract_number', 'unit', 'tenant', 'start_date', 'end_date', 'monthly_rent', 'status', 'is_active')
+    list_display = ('contract_number', 'unit', 'tenant', 'start_date', 'end_date', 'get_remaining_days', 'status', 'is_active')
     list_filter = ('status', 'is_active', 'start_date', 'end_date')
     search_fields = ('contract_number', 'unit__unit_number', 'tenant__user__username')
     ordering = ('-start_date',)
-    actions = ['mark_expired', 'terminate_lease']
+    actions = ['mark_expired', 'extend_lease']
 
     def get_remaining_days(self, obj):
         return obj.get_remaining_days()
@@ -122,19 +122,11 @@ class InvoiceAdmin(admin.ModelAdmin):
         self.message_user(request, f"{updated_count} فاتورة تم تحديده كمدفوعة.")
     mark_as_paid.short_description = "تحديد الفواتير المدفوعة"
 
-
-@admin.register(ActivityLog)
-class ActivityLogAdmin(admin.ModelAdmin):
-    list_display = ('user', 'action', 'details')
-    list_filter = ('timestamp',)
-    search_fields = ('user__username', 'action', 'details')
-    #ordering = ('-timestamp',)
-
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('lease', 'amount', 'payment_method', 'notes')
-    list_filter = ('payment_method',)
-    search_fields = ('lease__contract_number', 'amount', 'notes')
+    list_display = ('lease', 'payment_date', 'amount', 'payment_method', 'notes')
+    list_filter = ('payment_method', 'payment_date')
+    search_fields = ('lease__contract_number', 'amount')
     ordering = ('-payment_date',)
 
     def get_queryset(self, request):
@@ -145,7 +137,14 @@ class PaymentAdmin(admin.ModelAdmin):
             leases = Lease.objects.filter(tenant__user=request.user)
             return qs.filter(lease__tenant=leases)
         return qs.none()
-            
+
     def mark_as_paid(self, request, queryset):
         updated_count = queryset.update(status='paid')
         self.message_user(request, f"{updated_count} دفعة تم تحديده كمدفوعة.")
+        
+@admin.register(ActivityLog)
+class ActivityLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'action', 'timestamp', 'details')
+    list_filter = ('timestamp',)
+    search_fields = ('user__username', 'action', 'details')
+    ordering = ('-timestamp',)

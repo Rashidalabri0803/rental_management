@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailedView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from datetime import date
-from .models import Building, Unit, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog, User
+from .models import User, Building, Unit, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog
 from .forms import BuildingForm, TenantRegistrationForm, UnitForm, LeaseForm, PaymentForm, InvoiceForm, MainenanceRequestForm, ActivityLogForm, TenantForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
