@@ -4,6 +4,8 @@ from . import views
 app_name = 'rental'
 
 urlpatterns = [
+    path('login/', views.CustomeLoginView.as_view(), name='login'),
+    path('logout/', views.CustomeLogoutView.as_view(), name='logout'),
 
     path('supervisor/dashboard/', views.SupervisorDashboardView.as_view(), name='supervisor_dashboard'),
     path('tenant/dashboard/', views.TenantDashboardView.as_view(), name='tenant_dashboard'),
@@ -18,10 +20,10 @@ urlpatterns = [
     path('units/<int:pk>/edit/', views.UnitUpdateView.as_view(), name='edit_unit'),
     path('units/<int:pk>/delete/', views.UnitDeleteView.as_view(), name='delete_unit'),
 
-    #path('tenants/', views.TenantListView.as_view(), name='tenant_list'),
-    #path('tenants/add/', views.TenantCreateView.as_view(), name='add_tenant'),
-    #path('tenants/<int:pk>/edit/', views.TenantUpdateView.as_view(), name='edit_tenant'),
-    #path('tenants/<int:pk>/delete/', views.TenantDeleteView.as_view(), name='delete_tenant'),
+    path('tenants/', views.TenantListView.as_view(), name='tenant_list'),
+    path('tenants/add/', views.TenantCreateView.as_view(), name='add_tenant'),
+    path('tenants/<int:pk>/edit/', views.TenantUpdateView.as_view(), name='edit_tenant'),
+    path('tenants/<int:pk>/delete/', views.TenantDeleteView.as_view(), name='delete_tenant'),
 
     path('leases/', views.LeaseListView.as_view(), name='lease_list'),
     path('leases/add/', views.LeaseCreateView.as_view(), name='add_lease'),

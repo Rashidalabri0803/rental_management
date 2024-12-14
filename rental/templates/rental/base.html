@@ -32,11 +32,11 @@
                     {% if request.user.is_authenticated %}
                     {% if request.user.is_superuser %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'rental:supervisor_dashboard' %}">لوحة التحكم</a>
+                        <a class="nav-link" href="{% url 'rental:supervisor_dashboard' %}">لوحة المشرف</a>
                     </li>
                     {% elif request.user.is_tenant %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'rental:tenant_dashboard' %}">لوحة التحكم</a>
+                        <a class="nav-link" href="{% url 'rental:tenant_dashboard' %}">لوحة المستأجر</a>
                     </li>
                     {% endif %}
                     <li class="nav-item">
