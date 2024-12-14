@@ -6,8 +6,9 @@ from django.contrib import messages
 from datetime import date
 from .models import User, Building, Unit, Tenant, Lease, Payment, Notifiction, MaintenanceRequest, Invoice, ActivityLog
 from .forms import BuildingForm, TenantRegistrationForm, UnitForm, LeaseForm, PaymentForm, InvoiceForm, MainenanceRequestForm
-from django.contrib.auth.views import authenticate, login, logout, LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 
 class CustomLoginView(LoginView):
     template_name = 'rental/login.html'
